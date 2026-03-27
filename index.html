@@ -2,101 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Zahida Kanon Rent Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahida Kanon Rent Management</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        input { width: 80px; padding: 5px; border: 1px solid #ccc; }
-        .summary-box { margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 5px; }
-        .btn { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 10px; background: #f0f2f5; }
+        .container { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
+        h2 { color: #1a73e8; text-align: center; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th { background: #1a73e8; color: white; padding: 10px; }
+        td { border: 1px solid #ddd; padding: 5px; text-align: center; }
+        input { width: 65px; border: 1px solid #ccc; border-radius: 4px; padding: 4px; text-align: center; }
+        .summary-section { margin-top: 20px; background: #e8f0fe; padding: 15px; border-radius: 8px; }
+        .total-row { font-weight: bold; background: #f8f9fa; }
+        .btn-submit { background: #188038; color: white; padding: 12px; border: none; border-radius: 6px; width: 100%; cursor: pointer; font-size: 16px; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Zahida Kanon Rent Management - Monthly Entry</h2>
-        <p>Month: <input type="month" id="reportMonth"></p>
+        <h2>Rent Management Portal</h2>
+        <div style="text-align: center; margin-bottom: 15px;">
+            Month: <input type="month" id="reportMonth" style="width: 150px;">
+        </div>
         
-        <table>
+        <table id="rentTable">
             <thead>
                 <tr>
-                    <th>Flat No</th>
+                    <th>Flat</th>
                     <th>Prev. Due</th>
                     <th>Rent</th>
-                    <th>Bills (Edit)</th>
+                    <th>Bills</th>
                     <th>Others</th>
                     <th>Total Powna</th>
-                    <th>Paid Amount</th>
-                    <th>Current Balance</th>
+                    <th>Paid</th>
+                    <th>Balance</th>
                 </tr>
             </thead>
-            <tbody id="rentBody">
+            <tbody id="tableBody">
                 </tbody>
         </table>
 
-        <div class="summary-box">
-            <h3>Monthly Expenses</h3>
-            Night Guard: <input type="number" id="expGuard" oninput="calcTurnover()"> 
-            Mosque: <input type="number" id="expMosque" oninput="calcTurnover()"> 
-            Repairs: <input type="number" id="expRepair" oninput="calcTurnover()">
+        <div class="summary-section">
+            <h3 style="margin-top:0;">Monthly Expenditures</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+                <div>Guard: <input type="number" id="expGuard" value="0" oninput="calcFinal()"></div>
+                <div>Mosque: <input type="number" id="expMosque" value="0" oninput="calcFinal()"></div>
+                <div>Repair: <input type="number" id="expRepair" value="0" oninput="calcFinal()"></div>
+            </div>
             <hr>
-            <strong>Monthly Turnover: <span id="totalTurnover">0</span> BDT</strong>
+            <div style="font-size: 18px; text-align: right;">
+                <strong>Total Turnover: <span id="finalTurnover" style="color: #d93025;">0</span> BDT</strong>
+            </div>
         </div>
-        <button class="btn" onclick="saveData()">Submit Monthly Report</button>
+
+        <button class="btn-submit" onclick="exportData()">Generate Monthly Report (CSV)</button>
     </div>
 
     <script>
-        // Placeholder for initial dues (from your RentMS.xlsm)
-        const initialDues = [15350, 13670, 0, 0, 9450, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        const fixedRents = [5800, 8000, 8500, 11000, 6500, 9000, 7000, 7500, 8000, 8000, 8000, 8000, 8000, 8000];
+        // Data from your RentMS.xlsm 
+        const flatData = [
+            { id: 1, prev: 15350, rent: 5800, bill: 1580 },
+            { id: 2, prev: 13670, rent: 8000, bill: 1580 },
+            { id: 3, prev: 0, rent: 8500, bill: 2080 },
+            { id: 4, prev: 0, rent: 11000, bill: 1580 },
+            { id: 5, prev: 9450, rent: 6500, bill: 2300 },
+            { id: 6, prev: 0, rent: 9000, bill: 2520 },
+            { id: 7, prev: 0, rent: 7000, bill: 1580 },
+            { id: 8, prev: 0, rent: 7500, bill: 1580 },
+            { id: 9, prev: 0, rent: 8000, bill: 1580 },
+            { id: 10, prev: 0, rent: 8000, bill: 1580 },
+            { id: 11, prev: 0, rent: 8000, bill: 1580 },
+            { id: 12, prev: 0, rent: 8000, bill: 1580 },
+            { id: 13, prev: 0, rent: 8000, bill: 1580 },
+            { id: 14, prev: 0, rent: 8000, bill: 1580 }
+        ];
 
-        const tbody = document.getElementById('rentBody');
-        for (let i = 0; i < 14; i++) {
-            let row = `<tr>
-                <td>${i+1}</td>
-                <td><input type="number" id="prev${i}" value="${initialDues[i]}" oninput="updateRow(${i})"></td>
-                <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="updateRow(${i})"></td>
-                <td><input type="number" id="bill${i}" value="1580" oninput="updateRow(${i})"></td>
-                <td><input type="number" id="oth${i}" value="0" oninput="updateRow(${i})"></td>
-                <td><span id="powna${i}">0</span></td>
-                <td><input type="number" id="paid${i}" value="0" oninput="updateRow(${i})"></td>
-                <td><strong id="bal${i}">0</strong></td>
-            </tr>`;
-            tbody.innerHTML += row;
-            setTimeout(() => updateRow(i), 100);
+        function initTable() {
+            const body = document.getElementById('tableBody');
+            flatData.forEach((flat, i) => {
+                const row = `<tr>
+                    <td>${flat.id}</td>
+                    <td><input type="number" id="prev${i}" value="${flat.prev}" oninput="calcRow(${i})"></td>
+                    <td><input type="number" id="rent${i}" value="${flat.rent}" oninput="calcRow(${i})"></td>
+                    <td><input type="number" id="bill${i}" value="${flat.bill}" oninput="calcRow(${i})"></td>
+                    <td><input type="number" id="oth${i}" value="0" oninput="calcRow(${i})"></td>
+                    <td id="totalPowna${i}">0</td>
+                    <td><input type="number" id="paid${i}" value="0" oninput="calcRow(${i})" style="border: 2px solid #1a73e8;"></td>
+                    <td id="balance${i}" style="font-weight:bold;">0</td>
+                </tr>`;
+                body.innerHTML += row;
+                calcRow(i);
+            });
         }
 
-        function updateRow(i) {
+        function calcRow(i) {
             const p = parseFloat(document.getElementById(`prev${i}`).value) || 0;
             const r = parseFloat(document.getElementById(`rent${i}`).value) || 0;
             const b = parseFloat(document.getElementById(`bill${i}`).value) || 0;
             const o = parseFloat(document.getElementById(`oth${i}`).value) || 0;
             const paid = parseFloat(document.getElementById(`paid${i}`).value) || 0;
 
-            const totalPowna = p + r + b + o;
-            const balance = totalPowna - paid;
+            const tp = p + r + b + o;
+            const bal = tp - paid;
 
-            document.getElementById(`powna${i}`).innerText = totalPowna;
-            document.getElementById(`bal${i}`).innerText = balance;
-            calcTurnover();
+            document.getElementById(`totalPowna${i}`).innerText = tp;
+            document.getElementById(`balance${i}`).innerText = bal;
+            calcFinal();
         }
 
-        function calcTurnover() {
-            let totalRec = 0;
+        function calcFinal() {
+            let totalPaid = 0;
             for(let i=0; i<14; i++) {
-                totalRec += parseFloat(document.getElementById(`paid${i}`).value) || 0;
+                totalPaid += parseFloat(document.getElementById(`paid${i}`).value) || 0;
             }
-            const ex1 = parseFloat(document.getElementById('expGuard').value) || 0;
-            const ex2 = parseFloat(document.getElementById('expMosque').value) || 0;
-            const ex3 = parseFloat(document.getElementById('expRepair').value) || 0;
+            const expenses = (parseFloat(document.getElementById('expGuard').value) || 0) +
+                             (parseFloat(document.getElementById('expMosque').value) || 0) +
+                             (parseFloat(document.getElementById('expRepair').value) || 0);
             
-            document.getElementById('totalTurnover').innerText = totalRec - (ex1 + ex2 + ex3);
+            document.getElementById('finalTurnover').innerText = totalPaid - expenses;
         }
 
-        function saveData() {
-            alert("Data Prepared for CSV. In a live GitHub setup, this would now send to your database!");
+        function exportData() {
+            const month = document.getElementById('reportMonth').value;
+            let csvContent = "data:text/csv;charset=utf-8,Flat,PrevDue,Rent,Bills,Others,TotalPowna,Paid,Balance\n";
+            for(let i=0; i<14; i++) {
+                const rowData = [
+                    i+1,
+                    document.getElementById(`prev${i}`).value,
+                    document.getElementById(`rent${i}`).value,
+                    document.getElementById(`bill${i}`).value,
+                    document.getElementById(`oth${i}`).value,
+                    document.getElementById(`totalPowna${i}`).innerText,
+                    document.getElementById(`paid${i}`).value,
+                    document.getElementById(`balance${i}`).innerText
+                ];
+                csvContent += rowData.join(",") + "\n";
+            }
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Rent_Report_${month}.csv`);
+            document.body.appendChild(link);
+            link.click();
         }
+
+        initTable();
     </script>
 </body>
 </html>
