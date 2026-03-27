@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zahida Kanon Rent Portal</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        input { width: 80px; padding: 5px; border: 1px solid #ccc; }
+        .summary-box { margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 5px; }
+        .btn { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Zahida Kanon Rent Management - Monthly Entry</h2>
+        <p>Month: <input type="month" id="reportMonth"></p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Flat No</th>
+                    <th>Prev. Due</th>
+                    <th>Rent</th>
+                    <th>Bills (Edit)</th>
+                    <th>Others</th>
+                    <th>Total Powna</th>
+                    <th>Paid Amount</th>
+                    <th>Current Balance</th>
+                </tr>
+            </thead>
+            <tbody id="rentBody">
+                </tbody>
+        </table>
+
+        <div class="summary-box">
+            <h3>Monthly Expenses</h3>
+            Night Guard: <input type="number" id="expGuard" oninput="calcTurnover()"> 
+            Mosque: <input type="number" id="expMosque" oninput="calcTurnover()"> 
+            Repairs: <input type="number" id="expRepair" oninput="calcTurnover()">
+            <hr>
+            <strong>Monthly Turnover: <span id="totalTurnover">0</span> BDT</strong>
+        </div>
+        <button class="btn" onclick="saveData()">Submit Monthly Report</button>
+    </div>
+
+    <script>
+        // Placeholder for initial dues (from your RentMS.xlsm)
+        const initialDues = [15350, 13670, 0, 0, 9450, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const fixedRents = [5800, 8000, 8500, 11000, 6500, 9000, 7000, 7500, 8000, 8000, 8000, 8000, 8000, 8000];
+
+        const tbody = document.getElementById('rentBody');
+        for (let i = 0; i < 14; i++) {
+            let row = `<tr>
+                <td>${i+1}</td>
+                <td><input type="number" id="prev${i}" value="${initialDues[i]}" oninput="updateRow(${i})"></td>
+                <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="updateRow(${i})"></td>
+                <td><input type="number" id="bill${i}" value="1580" oninput="updateRow(${i})"></td>
+                <td><input type="number" id="oth${i}" value="0" oninput="updateRow(${i})"></td>
+                <td><span id="powna${i}">0</span></td>
+                <td><input type="number" id="paid${i}" value="0" oninput="updateRow(${i})"></td>
+                <td><strong id="bal${i}">0</strong></td>
+            </tr>`;
+            tbody.innerHTML += row;
+            setTimeout(() => updateRow(i), 100);
+        }
+
+        function updateRow(i) {
+            const p = parseFloat(document.getElementById(`prev${i}`).value) || 0;
+            const r = parseFloat(document.getElementById(`rent${i}`).value) || 0;
+            const b = parseFloat(document.getElementById(`bill${i}`).value) || 0;
+            const o = parseFloat(document.getElementById(`oth${i}`).value) || 0;
+            const paid = parseFloat(document.getElementById(`paid${i}`).value) || 0;
+
+            const totalPowna = p + r + b + o;
+            const balance = totalPowna - paid;
+
+            document.getElementById(`powna${i}`).innerText = totalPowna;
+            document.getElementById(`bal${i}`).innerText = balance;
+            calcTurnover();
+        }
+
+        function calcTurnover() {
+            let totalRec = 0;
+            for(let i=0; i<14; i++) {
+                totalRec += parseFloat(document.getElementById(`paid${i}`).value) || 0;
+            }
+            const ex1 = parseFloat(document.getElementById('expGuard').value) || 0;
+            const ex2 = parseFloat(document.getElementById('expMosque').value) || 0;
+            const ex3 = parseFloat(document.getElementById('expRepair').value) || 0;
+            
+            document.getElementById('totalTurnover').innerText = totalRec - (ex1 + ex2 + ex3);
+        }
+
+        function saveData() {
+            alert("Data Prepared for CSV. In a live GitHub setup, this would now send to your database!");
+        }
+    </script>
+</body>
+</html>
