@@ -78,20 +78,18 @@
     </div>
 </div>
 
-<script>
-    // --- INSERT YOUR FIREBASE CONFIGURATION HERE ---
+<script>// --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
-  apiKey: "AIzaSyDQzoJOodXx1kGwJqWo5ji2d041rpvcHlI",
-  authDomain: "rent-management-db.firebaseapp.com",
-  databaseURL: "https://rent-management-db-default-rtdb.firebaseio.com",
-  projectId: "rent-management-db",
-  storageBucket: "rent-management-db.firebasestorage.app",
-  messagingSenderId: "39531538874",
-  appId: "1:39531538874:web:9a1c4ab5e445f0258fd583"
-};
+        apiKey: "AIzaSyDQzoJOodXx1kGwJqWo5ji2d041rpvcHlI",
+        authDomain: "rent-management-db.firebaseapp.com",
+        databaseURL: "https://rent-management-db-default-rtdb.firebaseio.com",
+        projectId: "rent-management-db",
+        storageBucket: "rent-management-db.firebasestorage.app",
+        messagingSenderId: "39531538874",
+        appId: "1:39531538874:web:9a1c4ab5e445f0258fd583"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    // -----------------------------------------------
 
     const fixedRents = [5800, 8000, 8500, 11000, 6500, 9000, 7000, 7500, 8000, 8000, 8000, 8000, 8000, 8000];
 
@@ -101,7 +99,7 @@
         for (let i = 0; i < 14; i++) {
             tbody.innerHTML += `<tr>
                 <td>${i + 1}</td>
-                <td><input type="number" id="prev${i}" value="0" readonly style="background:#e9ecef;"></td>
+                <td id="prev${i}" style="background:#e9ecef; font-weight:bold;">0</td>
                 <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="calculateTotals()"></td>
                 <td><input type="number" id="bill${i}" value="1580" oninput="calculateTotals()"></td>
                 <td><input type="number" id="oth${i}" value="0" oninput="calculateTotals()"></td>
@@ -117,7 +115,8 @@
         const defaulters = [];
 
         for (let i = 0; i < 14; i++) {
-            const prev = parseFloat(document.getElementById(`prev${i}`).value) || 0;
+            // Updated to pull from innerText for uneditable Prev. Due
+            const prev = parseFloat(document.getElementById(`prev${i}`).innerText) || 0;
             const rent = parseFloat(document.getElementById(`rent${i}`).value) || 0;
             const bill = parseFloat(document.getElementById(`bill${i}`).value) || 0;
             const oth = parseFloat(document.getElementById(`oth${i}`).value) || 0;
@@ -138,13 +137,54 @@
                     (parseFloat(document.getElementById('expTax').value) || 0) + 
                     (parseFloat(document.getElementById('expRepair').value) || 0);
 
-        // Update Dashboard Elements
         document.getElementById('dashCollection').innerText = grossCollection;
         document.getElementById('dashExpenses').innerText = exp;
         document.getElementById('dashProfit').innerText = grossCollection - exp;
         
         const defUL = document.getElementById('defaulterList');
         defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
+    }
+
+    function loadData() {
+        const currentMonth = document.getElementById('reportMonth').value;
+        if (!currentMonth) return;
+
+        db.ref('rent_records').once('value').then(snapshot => {
+            const allRecords = snapshot.val() || {};
+            
+            // 1. If this exact month exists, load it
+            if (allRecords[currentMonth]) {
+                const data = allRecords[currentMonth];
+                data.entries.forEach((entry, i) => {
+                    document.getElementById(`prev${i}`).innerText = entry.prevDue;
+                    document.getElementById(`rent${i}`).value = entry.rent;
+                    document.getElementById(`bill${i}`).value = entry.bill;
+                    document.getElementById(`oth${i}`).value = entry.others;
+                    document.getElementById(`paid${i}`).value = entry.paid;
+                });
+                document.getElementById('expGuard').value = data.expenses.guard || 0;
+                document.getElementById('expMosque').value = data.expenses.mosque || 0;
+                document.getElementById('expTax').value = data.expenses.tax || 0;
+                document.getElementById('expRepair').value = data.expenses.repair || 0;
+            } 
+            // 2. If it's a new month, find the most recent previous record for Arrears
+            else {
+                const months = Object.keys(allRecords).sort();
+                const prevMonthKey = months.filter(m => m < currentMonth).pop();
+
+                for (let i = 0; i < 14; i++) {
+                    let lastBalance = 0;
+                    if (prevMonthKey && allRecords[prevMonthKey]) {
+                        lastBalance = allRecords[prevMonthKey].entries[i].balance;
+                    }
+                    document.getElementById(`prev${i}`).innerText = lastBalance;
+                    // Reset fields for fresh entry
+                    document.getElementById(`paid${i}`).value = 0;
+                    document.getElementById(`oth${i}`).value = 0;
+                }
+            }
+            calculateTotals();
+        });
     }
 
     function submitToDatabase() {
@@ -155,7 +195,7 @@
         for (let i = 0; i < 14; i++) {
             monthData.entries.push({
                 flat: i + 1,
-                prevDue: parseFloat(document.getElementById(`prev${i}`).value) || 0,
+                prevDue: parseFloat(document.getElementById(`prev${i}`).innerText) || 0,
                 rent: parseFloat(document.getElementById(`rent${i}`).value) || 0,
                 bill: parseFloat(document.getElementById(`bill${i}`).value) || 0,
                 others: parseFloat(document.getElementById(`oth${i}`).value) || 0,
@@ -171,49 +211,23 @@
         };
 
         db.ref('rent_records/' + month).set(monthData)
-          .then(() => alert("Data successfully synchronised to central database."))
+          .then(() => alert("Data successfully synchronised."))
           .catch(err => alert("Sync failed: " + err));
-    }
-
-    function loadData() {
-        const currentMonth = document.getElementById('reportMonth').value;
-        if (!currentMonth) return;
-
-        // Fetch previous month's balance to populate 'Prev Due'
-        // Note: For robust date subtraction, a date library is ideal, but for basic operation we fetch the whole node.
-        db.ref('rent_records').once('value').then(snapshot => {
-            const records = snapshot.val();
-            if (records && records[currentMonth]) {
-                // Load existing current month data if being edited
-                const data = records[currentMonth];
-                data.entries.forEach((entry, i) => {
-                    document.getElementById(`prev${i}`).value = entry.prevDue;
-                    document.getElementById(`rent${i}`).value = entry.rent;
-                    document.getElementById(`bill${i}`).value = entry.bill;
-                    document.getElementById(`oth${i}`).value = entry.others;
-                    document.getElementById(`paid${i}`).value = entry.paid;
-                });
-                document.getElementById('expGuard').value = data.expenses.guard;
-                document.getElementById('expMosque').value = data.expenses.mosque;
-                document.getElementById('expTax').value = data.expenses.tax;
-                document.getElementById('expRepair').value = data.expenses.repair;
-            }
-            calculateTotals();
-        });
     }
 
     function switchTab(tabId) {
         document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.target.classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
     window.onload = () => {
         initTable();
-        // Set default month to current
         const now = new Date();
-        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        document.getElementById('reportMonth').value = monthStr;
+        loadData();
     };
 </script>
 </body>
