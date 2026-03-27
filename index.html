@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zahida Kanon Rent Management System</title>
+    <title>ZAHIDA KANON RENT MANAGEMENT</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -29,7 +29,7 @@
 
 <div class="wrapper">
     <div class="header">
-        <h2>Zahida Kanon Rent Dashboard</h2>
+        <h2>Rent Dashboard</h2>
         <input type="month" id="reportMonth" onchange="loadData()">
     </div>
 
@@ -42,7 +42,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Flat</th><th>Prev. Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Powna</th><th>Paid</th><th>Balance</th>
+                    <th>Flat</th><th>Prev. Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Due</th><th>Paid</th><th>Balance</th>
                 </tr>
             </thead>
             <tbody id="inputTable">
@@ -105,7 +105,7 @@
                 <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="calculateTotals()"></td>
                 <td><input type="number" id="bill${i}" value="1580" oninput="calculateTotals()"></td>
                 <td><input type="number" id="oth${i}" value="0" oninput="calculateTotals()"></td>
-                <td id="powna${i}">0</td>
+                <td id="ttldue${i}">0</td>
                 <td><input type="number" id="paid${i}" value="0" oninput="calculateTotals()" style="border: 2px solid #198754;"></td>
                 <td id="bal${i}" style="font-weight:bold;">0</td>
             </tr>`;
@@ -123,10 +123,10 @@
             const oth = parseFloat(document.getElementById(`oth${i}`).value) || 0;
             const paid = parseFloat(document.getElementById(`paid${i}`).value) || 0;
 
-            const powna = prev + rent + bill + oth;
-            const bal = powna - paid;
+            const ttldue = prev + rent + bill + oth;
+            const bal = ttldue - paid;
 
-            document.getElementById(`powna${i}`).innerText = powna;
+            document.getElementById(`ttldue${i}`).innerText = ttldue;
             document.getElementById(`bal${i}`).innerText = bal;
 
             grossCollection += paid;
@@ -135,6 +135,7 @@
 
         const exp = (parseFloat(document.getElementById('expGuard').value) || 0) +
                     (parseFloat(document.getElementById('expMosque').value) || 0) +
+                    (parseFloat(document.getElementById('expTax').value) || 0) + 
                     (parseFloat(document.getElementById('expRepair').value) || 0);
 
         // Update Dashboard Elements
