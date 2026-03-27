@@ -100,7 +100,7 @@
         for (let i = 0; i < 14; i++) {
             tbody.innerHTML += `<tr>
                 <td>${i + 1}</td>
-                <td><input type="number" id="prev${i}" value="0"></td>
+                <td><input type="number" id="prev${i}" value="0" readonly style="background:#e9ecef;"></td>
                 <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="calculateTotals()"></td>
                 <td><input type="number" id="bill${i}" value="1580" oninput="calculateTotals()"></td>
                 <td><input type="number" id="oth${i}" value="0" oninput="calculateTotals()"></td>
