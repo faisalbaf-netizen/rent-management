@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rent Management System</title>
+    <title>Zahida Kanon Rent Management System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
@@ -29,13 +29,13 @@
 
 <div class="wrapper">
     <div class="header">
-        <h2>Rent Management & Analytical Dashboard</h2>
+        <h2>Zahida Kanon Rent Dashboard</h2>
         <input type="month" id="reportMonth" onchange="loadData()">
     </div>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('operator')">Operator View (Input)</div>
-        <div class="tab" onclick="switchTab('commander')">Commander Dashboard (Analysis)</div>
+        <div class="tab active" onclick="switchTab('operator')">Data Input</div>
+        <div class="tab" onclick="switchTab('commander')">Dashboard (Analysis)</div>
     </div>
 
     <div id="operator" class="section active">
@@ -52,7 +52,8 @@
         <div class="dash-card" style="margin-top: 20px;">
             <h3>Expenditures</h3>
             Guard: <input type="number" id="expGuard" value="0" oninput="calculateTotals()"> 
-            Mosque: <input type="number" id="expMosque" value="0" oninput="calculateTotals()"> 
+            Mosque: <input type="number" id="expMosque" value="0" oninput="calculateTotals()">
+            Tax: <input type="number" id="expTax" value="0" oninput="calculateTotals()">
             Repair: <input type="number" id="expRepair" value="0" oninput="calculateTotals()">
         </div>
 
@@ -164,6 +165,7 @@
         monthData.expenses = {
             guard: parseFloat(document.getElementById('expGuard').value) || 0,
             mosque: parseFloat(document.getElementById('expMosque').value) || 0,
+            tax: parseFloat(document.getElementById('expTax').value) || 0,
             repair: parseFloat(document.getElementById('expRepair').value) || 0
         };
 
@@ -192,6 +194,7 @@
                 });
                 document.getElementById('expGuard').value = data.expenses.guard;
                 document.getElementById('expMosque').value = data.expenses.mosque;
+                document.getElementById('expTax').value = data.expenses.tax;
                 document.getElementById('expRepair').value = data.expenses.repair;
             }
             calculateTotals();
