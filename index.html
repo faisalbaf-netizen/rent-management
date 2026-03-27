@@ -3,149 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zahida Kanon Rent Management</title>
+    <title>Rent Management System</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 10px; background: #f0f2f5; }
-        .container { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
-        h2 { color: #1a73e8; text-align: center; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-        th { background: #1a73e8; color: white; padding: 10px; }
-        td { border: 1px solid #ddd; padding: 5px; text-align: center; }
-        input { width: 65px; border: 1px solid #ccc; border-radius: 4px; padding: 4px; text-align: center; }
-        .summary-section { margin-top: 20px; background: #e8f0fe; padding: 15px; border-radius: 8px; }
-        .total-row { font-weight: bold; background: #f8f9fa; }
-        .btn-submit { background: #188038; color: white; padding: 12px; border: none; border-radius: 6px; width: 100%; cursor: pointer; font-size: 16px; margin-top: 15px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .wrapper { max-width: 1100px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header { text-align: center; color: #2c3e50; border-bottom: 2px solid #34495e; padding-bottom: 10px; margin-bottom: 20px; }
+        .tabs { display: flex; cursor: pointer; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: #e9ecef; border: 1px solid #dee2e6; font-weight: bold; }
+        .tab.active { background: #34495e; color: #fff; }
+        .section { display: none; }
+        .section.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #ced4da; padding: 8px; text-align: center; }
+        th { background: #34495e; color: white; }
+        input { width: 70px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { background: #198754; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .dash-card { background: #f8f9fa; padding: 20px; border-left: 5px solid #34495e; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Rent Management Portal</h2>
-        <div style="text-align: center; margin-bottom: 15px;">
-            Month: <input type="month" id="reportMonth" style="width: 150px;">
-        </div>
-        
-        <table id="rentTable">
+
+<div class="wrapper">
+    <div class="header">
+        <h2>Rent Management & Analytical Dashboard</h2>
+        <input type="month" id="reportMonth" onchange="loadData()">
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('operator')">Operator View (Input)</div>
+        <div class="tab" onclick="switchTab('commander')">Commander Dashboard (Analysis)</div>
+    </div>
+
+    <div id="operator" class="section active">
+        <table>
             <thead>
                 <tr>
-                    <th>Flat</th>
-                    <th>Prev. Due</th>
-                    <th>Rent</th>
-                    <th>Bills</th>
-                    <th>Others</th>
-                    <th>Total Powna</th>
-                    <th>Paid</th>
-                    <th>Balance</th>
+                    <th>Flat</th><th>Prev. Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Powna</th><th>Paid</th><th>Balance</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
+            <tbody id="inputTable">
                 </tbody>
         </table>
 
-        <div class="summary-section">
-            <h3 style="margin-top:0;">Monthly Expenditures</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
-                <div>Guard: <input type="number" id="expGuard" value="0" oninput="calcFinal()"></div>
-                <div>Mosque: <input type="number" id="expMosque" value="0" oninput="calcFinal()"></div>
-                <div>Repair: <input type="number" id="expRepair" value="0" oninput="calcFinal()"></div>
-            </div>
-            <hr>
-            <div style="font-size: 18px; text-align: right;">
-                <strong>Total Turnover: <span id="finalTurnover" style="color: #d93025;">0</span> BDT</strong>
-            </div>
+        <div class="dash-card" style="margin-top: 20px;">
+            <h3>Expenditures</h3>
+            Guard: <input type="number" id="expGuard" value="0" oninput="calculateTotals()"> 
+            Mosque: <input type="number" id="expMosque" value="0" oninput="calculateTotals()"> 
+            Repair: <input type="number" id="expRepair" value="0" oninput="calculateTotals()">
         </div>
 
-        <button class="btn-submit" onclick="exportData()">Generate Monthly Report (CSV)</button>
+        <button class="btn" onclick="submitToDatabase()">Sync to Database</button>
     </div>
 
-    <script>
-        // Data from your RentMS.xlsm 
-        const flatData = [
-            { id: 1, prev: 15350, rent: 5800, bill: 1580 },
-            { id: 2, prev: 13670, rent: 8000, bill: 1580 },
-            { id: 3, prev: 0, rent: 8500, bill: 2080 },
-            { id: 4, prev: 0, rent: 11000, bill: 1580 },
-            { id: 5, prev: 9450, rent: 6500, bill: 2300 },
-            { id: 6, prev: 0, rent: 9000, bill: 2520 },
-            { id: 7, prev: 0, rent: 7000, bill: 1580 },
-            { id: 8, prev: 0, rent: 7500, bill: 1580 },
-            { id: 9, prev: 0, rent: 8000, bill: 1580 },
-            { id: 10, prev: 0, rent: 8000, bill: 1580 },
-            { id: 11, prev: 0, rent: 8000, bill: 1580 },
-            { id: 12, prev: 0, rent: 8000, bill: 1580 },
-            { id: 13, prev: 0, rent: 8000, bill: 1580 },
-            { id: 14, prev: 0, rent: 8000, bill: 1580 }
-        ];
+    <div id="commander" class="section">
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <h3>Revenue Overview</h3>
+                <p>Gross Collection: <strong id="dashCollection">0</strong> BDT</p>
+                <p>Total Expenditures: <strong id="dashExpenses">0</strong> BDT</p>
+                <hr>
+                <p style="font-size: 18px; color: #198754;">Net Monthly Profit: <strong id="dashProfit">0</strong> BDT</p>
+            </div>
+            <div class="dash-card">
+                <h3>Outstanding Defaulters</h3>
+                <ul id="defaulterList" style="color: #dc3545; font-weight: bold;">
+                    </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-        function initTable() {
-            const body = document.getElementById('tableBody');
-            flatData.forEach((flat, i) => {
-                const row = `<tr>
-                    <td>${flat.id}</td>
-                    <td><input type="number" id="prev${i}" value="${flat.prev}" oninput="calcRow(${i})"></td>
-                    <td><input type="number" id="rent${i}" value="${flat.rent}" oninput="calcRow(${i})"></td>
-                    <td><input type="number" id="bill${i}" value="${flat.bill}" oninput="calcRow(${i})"></td>
-                    <td><input type="number" id="oth${i}" value="0" oninput="calcRow(${i})"></td>
-                    <td id="totalPowna${i}">0</td>
-                    <td><input type="number" id="paid${i}" value="0" oninput="calcRow(${i})" style="border: 2px solid #1a73e8;"></td>
-                    <td id="balance${i}" style="font-weight:bold;">0</td>
-                </tr>`;
-                body.innerHTML += row;
-                calcRow(i);
-            });
+<script>
+    // --- INSERT YOUR FIREBASE CONFIGURATION HERE ---
+    const firebaseConfig = {
+  apiKey: "AIzaSyDQzoJOodXx1kGwJqWo5ji2d041rpvcHlI",
+  authDomain: "rent-management-db.firebaseapp.com",
+  databaseURL: "https://rent-management-db-default-rtdb.firebaseio.com",
+  projectId: "rent-management-db",
+  storageBucket: "rent-management-db.firebasestorage.app",
+  messagingSenderId: "39531538874",
+  appId: "1:39531538874:web:9a1c4ab5e445f0258fd583"
+};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    // -----------------------------------------------
+
+    const fixedRents = [5800, 8000, 8500, 11000, 6500, 9000, 7000, 7500, 8000, 8000, 8000, 8000, 8000, 8000];
+
+    function initTable() {
+        const tbody = document.getElementById('inputTable');
+        tbody.innerHTML = '';
+        for (let i = 0; i < 14; i++) {
+            tbody.innerHTML += `<tr>
+                <td>${i + 1}</td>
+                <td><input type="number" id="prev${i}" value="0" readonly style="background:#e9ecef;"></td>
+                <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="calculateTotals()"></td>
+                <td><input type="number" id="bill${i}" value="1580" oninput="calculateTotals()"></td>
+                <td><input type="number" id="oth${i}" value="0" oninput="calculateTotals()"></td>
+                <td id="powna${i}">0</td>
+                <td><input type="number" id="paid${i}" value="0" oninput="calculateTotals()" style="border: 2px solid #198754;"></td>
+                <td id="bal${i}" style="font-weight:bold;">0</td>
+            </tr>`;
         }
+    }
 
-        function calcRow(i) {
-            const p = parseFloat(document.getElementById(`prev${i}`).value) || 0;
-            const r = parseFloat(document.getElementById(`rent${i}`).value) || 0;
-            const b = parseFloat(document.getElementById(`bill${i}`).value) || 0;
-            const o = parseFloat(document.getElementById(`oth${i}`).value) || 0;
+    function calculateTotals() {
+        let grossCollection = 0;
+        const defaulters = [];
+
+        for (let i = 0; i < 14; i++) {
+            const prev = parseFloat(document.getElementById(`prev${i}`).value) || 0;
+            const rent = parseFloat(document.getElementById(`rent${i}`).value) || 0;
+            const bill = parseFloat(document.getElementById(`bill${i}`).value) || 0;
+            const oth = parseFloat(document.getElementById(`oth${i}`).value) || 0;
             const paid = parseFloat(document.getElementById(`paid${i}`).value) || 0;
 
-            const tp = p + r + b + o;
-            const bal = tp - paid;
+            const powna = prev + rent + bill + oth;
+            const bal = powna - paid;
 
-            document.getElementById(`totalPowna${i}`).innerText = tp;
-            document.getElementById(`balance${i}`).innerText = bal;
-            calcFinal();
+            document.getElementById(`powna${i}`).innerText = powna;
+            document.getElementById(`bal${i}`).innerText = bal;
+
+            grossCollection += paid;
+            if (bal > 0) defaulters.push(`Flat ${i + 1}: ${bal} BDT`);
         }
 
-        function calcFinal() {
-            let totalPaid = 0;
-            for(let i=0; i<14; i++) {
-                totalPaid += parseFloat(document.getElementById(`paid${i}`).value) || 0;
+        const exp = (parseFloat(document.getElementById('expGuard').value) || 0) +
+                    (parseFloat(document.getElementById('expMosque').value) || 0) +
+                    (parseFloat(document.getElementById('expRepair').value) || 0);
+
+        // Update Dashboard Elements
+        document.getElementById('dashCollection').innerText = grossCollection;
+        document.getElementById('dashExpenses').innerText = exp;
+        document.getElementById('dashProfit').innerText = grossCollection - exp;
+        
+        const defUL = document.getElementById('defaulterList');
+        defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
+    }
+
+    function submitToDatabase() {
+        const month = document.getElementById('reportMonth').value;
+        if (!month) return alert("Please select a month first.");
+
+        const monthData = { entries: [], expenses: {} };
+        for (let i = 0; i < 14; i++) {
+            monthData.entries.push({
+                flat: i + 1,
+                prevDue: parseFloat(document.getElementById(`prev${i}`).value) || 0,
+                rent: parseFloat(document.getElementById(`rent${i}`).value) || 0,
+                bill: parseFloat(document.getElementById(`bill${i}`).value) || 0,
+                others: parseFloat(document.getElementById(`oth${i}`).value) || 0,
+                paid: parseFloat(document.getElementById(`paid${i}`).value) || 0,
+                balance: parseFloat(document.getElementById(`bal${i}`).innerText) || 0
+            });
+        }
+        monthData.expenses = {
+            guard: parseFloat(document.getElementById('expGuard').value) || 0,
+            mosque: parseFloat(document.getElementById('expMosque').value) || 0,
+            repair: parseFloat(document.getElementById('expRepair').value) || 0
+        };
+
+        db.ref('rent_records/' + month).set(monthData)
+          .then(() => alert("Data successfully synchronised to central database."))
+          .catch(err => alert("Sync failed: " + err));
+    }
+
+    function loadData() {
+        const currentMonth = document.getElementById('reportMonth').value;
+        if (!currentMonth) return;
+
+        // Fetch previous month's balance to populate 'Prev Due'
+        // Note: For robust date subtraction, a date library is ideal, but for basic operation we fetch the whole node.
+        db.ref('rent_records').once('value').then(snapshot => {
+            const records = snapshot.val();
+            if (records && records[currentMonth]) {
+                // Load existing current month data if being edited
+                const data = records[currentMonth];
+                data.entries.forEach((entry, i) => {
+                    document.getElementById(`prev${i}`).value = entry.prevDue;
+                    document.getElementById(`rent${i}`).value = entry.rent;
+                    document.getElementById(`bill${i}`).value = entry.bill;
+                    document.getElementById(`oth${i}`).value = entry.others;
+                    document.getElementById(`paid${i}`).value = entry.paid;
+                });
+                document.getElementById('expGuard').value = data.expenses.guard;
+                document.getElementById('expMosque').value = data.expenses.mosque;
+                document.getElementById('expRepair').value = data.expenses.repair;
             }
-            const expenses = (parseFloat(document.getElementById('expGuard').value) || 0) +
-                             (parseFloat(document.getElementById('expMosque').value) || 0) +
-                             (parseFloat(document.getElementById('expRepair').value) || 0);
-            
-            document.getElementById('finalTurnover').innerText = totalPaid - expenses;
-        }
+            calculateTotals();
+        });
+    }
 
-        function exportData() {
-            const month = document.getElementById('reportMonth').value;
-            let csvContent = "data:text/csv;charset=utf-8,Flat,PrevDue,Rent,Bills,Others,TotalPowna,Paid,Balance\n";
-            for(let i=0; i<14; i++) {
-                const rowData = [
-                    i+1,
-                    document.getElementById(`prev${i}`).value,
-                    document.getElementById(`rent${i}`).value,
-                    document.getElementById(`bill${i}`).value,
-                    document.getElementById(`oth${i}`).value,
-                    document.getElementById(`totalPowna${i}`).innerText,
-                    document.getElementById(`paid${i}`).value,
-                    document.getElementById(`balance${i}`).innerText
-                ];
-                csvContent += rowData.join(",") + "\n";
-            }
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Rent_Report_${month}.csv`);
-            document.body.appendChild(link);
-            link.click();
-        }
+    function switchTab(tabId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
 
+    window.onload = () => {
         initTable();
-    </script>
+        // Set default month to current
+        const now = new Date();
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    };
+</script>
 </body>
 </html>
