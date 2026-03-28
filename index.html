@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* --- SCREEN STYLES --- */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 10px; }
         .wrapper { max-width: 1200px; margin: auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .header { text-align: center; color: #2c3e50; border-bottom: 2px solid #34495e; padding-bottom: 10px; margin-bottom: 15px; }
@@ -33,6 +34,7 @@
         
         .btn { background: #198754; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 20px; }
         .btn-backup { background: #0d6efd; margin-top: 10px; }
+        .btn-print { background: #4b4b4b; margin-top: 10px; }
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
         .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; }
         
@@ -42,6 +44,34 @@
         .recon-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 4px; margin-top: 20px; }
         
         .chart-container { position: relative; height: 300px; width: 100%; margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; }
+        
+        /* Hide print section on screen */
+        #printSection { display: none; }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body { background: #fff; margin: 0; padding: 0; font-family: 'Times New Roman', Times, serif; }
+            .wrapper { display: none !important; } /* Hide the entire app UI */
+            #printSection { display: block !important; width: 100%; } /* Show only print template */
+            
+            .print-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+            .print-header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+            .print-header p { margin: 5px 0 0; font-size: 14px; }
+            
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 6px; text-align: center; }
+            .print-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+            
+            .print-grid { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 13px; }
+            .print-box { border: 1px solid #000; padding: 10px; width: 48%; }
+            .print-box h3 { margin-top: 0; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+            
+            .print-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+            .print-total { font-weight: bold; border-top: 1px dashed #000; padding-top: 4px; margin-top: 4px; }
+            
+            .print-signatures { display: flex; justify-content: space-between; margin-top: 60px; }
+            .print-sig-line { border-top: 1px solid #000; width: 250px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -113,8 +143,8 @@
             <div class="expense-grid">
                 <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Deposit (Billal): <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Cash (Billal): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
+                <div class="expense-item">Cash Deposit: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Cash Retained (Caretaker): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
                 <div class="expense-item">Total Cash In Hand: <input type="number" id="depTotalCash" value="0" readonly style="background: #d4edda; border: 1px solid #28a745; color: #155724; font-weight: bold;"></div>
             </div>
         </div>
@@ -136,8 +166,8 @@
                 <h3 style="margin-top: 0;">Fund Allocation</h3>
                 <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
                 <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
-                <p>Cash Deposit: <strong id="dashCashDeposit">0</strong> BDT</p>
-                <p>Cash Retained (Caretaker): <strong id="dashCashRetained">0</strong> BDT</p>
+                <p>Deposit by Billal: <strong id="dashCashDeposit">0</strong> BDT</p>
+                <p>Cash Billal: <strong id="dashCashRetained">0</strong> BDT</p>
                 <p>Flat 14 Collection (Direct): <strong id="dashFlat14">0</strong> BDT</p>
                 <hr>
                 <p style="font-size: 16px; color: #856404; font-weight: bold;">Total Cash in Hand: <strong id="dashTotalCash">0</strong> BDT</p>
@@ -167,9 +197,15 @@
             <canvas id="financeChart"></canvas>
         </div>
 
-        <button class="btn btn-backup" onclick="downloadBackupCSV()">Download Full Excel/CSV Backup</button>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-print" style="flex: 1;" onclick="printMonthlyRecord()">🖨️ Print Monthly Record</button>
+            <button class="btn btn-backup" style="flex: 1;" onclick="downloadBackupCSV()">📥 Download Full CSV Backup</button>
+        </div>
     </div>
 </div>
+
+<div id="printSection">
+    </div>
 
 <script>
     // --- FIREBASE CONFIGURATION ---
@@ -260,13 +296,8 @@
         const dpsDep = parseFloat(document.getElementById('depDps').value) || 0;
         const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0;
         
-        // NEW MATH: Separate Caretaker vs Owner Cash
         const flat14Paid = flatsData[13].paid || 0;
-        
-        // Caretaker Retained excludes Flat 14
         const cashRetained = netProfit - cashDep - flat14Paid; 
-        
-        // Total Liquid Cash (Includes Flat 14 direct collection)
         const totalCashInHand = netProfit - bankDep - dpsDep - cashRetained;
         
         document.getElementById('depCash').value = cashRetained;
@@ -349,12 +380,89 @@
         monthData.deposits = {
             bank: parseFloat(document.getElementById('depBank').value) || 0, dps: parseFloat(document.getElementById('depDps').value) || 0,
             cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0, 
-            cash: parseFloat(document.getElementById('depCash').value) || 0, // Caretaker
-            totalCash: parseFloat(document.getElementById('depTotalCash').value) || 0 // Total in Hand
+            cash: parseFloat(document.getElementById('depCash').value) || 0,
+            totalCash: parseFloat(document.getElementById('depTotalCash').value) || 0
         };
         db.ref('rent_records/' + month).set(monthData)
           .then(() => { alert("Data successfully synchronised."); loadData(); })
           .catch(err => alert("Sync failed: " + err));
+    }
+
+    // --- NEW: PRINT LOGIC ---
+    function printMonthlyRecord() {
+        const monthStr = document.getElementById('reportMonth').value;
+        if (!monthStr) return alert("Please select a month.");
+        
+        // Format Month String (e.g., "2026-03" -> "March 2026")
+        const dateObj = new Date(monthStr + "-01");
+        const displayMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+        
+        let printHTML = `
+            <div class="print-header">
+                <h1>Zahida Kanon Rent Management</h1>
+                <p>Monthly Financial Statement - <strong>${displayMonth}</strong></p>
+                <p>Generated on: ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <table class="print-table">
+                <thead>
+                    <tr><th>Flat</th><th>Prev Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Due</th><th>Paid</th><th>Balance</th></tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Populate Table rows
+        for (let i = 0; i < 14; i++) {
+            printHTML += `<tr>
+                <td>Flat ${i+1}</td>
+                <td>${flatsData[i].prevDue}</td><td>${flatsData[i].rent}</td><td>${flatsData[i].bill}</td>
+                <td>${flatsData[i].others}</td><td>${flatsData[i].totalDue}</td><td>${flatsData[i].paid}</td>
+                <td>${flatsData[i].balance}</td>
+            </tr>`;
+        }
+        
+        printHTML += `</tbody></table>
+            <div class="print-grid">
+                <div class="print-box">
+                    <h3>Itemised Expenditures</h3>
+                    <div class="print-row"><span>Gas:</span><span>${document.getElementById('expGas').value}</span></div>
+                    <div class="print-row"><span>WASA:</span><span>${document.getElementById('expWasa').value}</span></div>
+                    <div class="print-row"><span>Electric:</span><span>${document.getElementById('expElectric').value}</span></div>
+                    <div class="print-row"><span>Mosque:</span><span>${document.getElementById('expMosque').value}</span></div>
+                    <div class="print-row"><span>Night Guard:</span><span>${document.getElementById('expGuard').value}</span></div>
+                    <div class="print-row"><span>Repair:</span><span>${document.getElementById('expRepair').value}</span></div>
+                    <div class="print-row"><span>Paint:</span><span>${document.getElementById('expPaint').value}</span></div>
+                    <div class="print-row"><span>Sanitary:</span><span>${document.getElementById('expSanitary').value}</span></div>
+                    <div class="print-row"><span>Cleaner:</span><span>${document.getElementById('expCleaner').value}</span></div>
+                    <div class="print-row"><span>Tax:</span><span>${document.getElementById('expTax').value}</span></div>
+                    <div class="print-row"><span>Bkash:</span><span>${document.getElementById('expBkash').value}</span></div>
+                    <div class="print-row"><span>Others:</span><span>${document.getElementById('expOthers').value}</span></div>
+                    <div class="print-row print-total"><span>Total Expenditure:</span><span>${document.getElementById('dashExpenses').innerText}</span></div>
+                </div>
+                
+                <div class="print-box">
+                    <h3>Financial Reconciliation</h3>
+                    <div class="print-row"><span>Gross Collection:</span><span>${document.getElementById('dashCollection').innerText}</span></div>
+                    <div class="print-row"><span>Total Expenditures:</span><span>- ${document.getElementById('dashExpenses').innerText}</span></div>
+                    <div class="print-row print-total" style="color:#198754;"><span>Net Profit:</span><span>${document.getElementById('dashProfit').innerText}</span></div>
+                    <br>
+                    <div class="print-row"><span>Bank Deposit:</span><span>${document.getElementById('dashBank').innerText}</span></div>
+                    <div class="print-row"><span>DPS Deposit:</span><span>${document.getElementById('dashDps').innerText}</span></div>
+                    <div class="print-row"><span>Cash Deposit:</span><span>${document.getElementById('dashCashDeposit').innerText}</span></div>
+                    <div class="print-row"><span>Flat 14 (Direct):</span><span>${document.getElementById('dashFlat14').innerText}</span></div>
+                    <div class="print-row"><span>Cash Retained (Caretaker):</span><span>${document.getElementById('dashCashRetained').innerText}</span></div>
+                    <div class="print-row print-total"><span>Total Cash in Hand:</span><span>${document.getElementById('dashTotalCash').innerText}</span></div>
+                </div>
+            </div>
+            
+            <div class="print-signatures">
+                <div class="print-sig-line">Prepared By (Caretaker)</div>
+                <div class="print-sig-line">Approved By (Owner)</div>
+            </div>
+        `;
+
+        document.getElementById('printSection').innerHTML = printHTML;
+        window.print();
     }
 
     function generateAnnualAnalyticsAndChart(selectedMonth) {
