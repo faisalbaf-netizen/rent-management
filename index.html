@@ -162,6 +162,10 @@
                 <h3 style="margin-top: 0;">Outstanding Defaulters</h3>
                 <ul id="defaulterList" style="color: #dc3545; font-weight: bold; margin-bottom: 0;">
                     </ul>
+                <hr style="border-top: 1px solid #f5c6cb;">
+                <p style="font-size: 16px; color: #dc3545; font-weight: bold; margin-top: 10px;">
+                    Total Outstanding: <strong id="dashTotalOutstanding">0</strong> BDT
+                </p>
             </div>
         </div>
     </div>
@@ -253,11 +257,15 @@
 
     function calculateTotals() {
         let grossCollection = 0;
+        let totalOutstanding = 0; // NEW: Track total arrears
         const defaulters = [];
 
         for (let i = 0; i < 14; i++) {
             grossCollection += flatsData[i].paid;
-            if (flatsData[i].balance > 0) defaulters.push(`Flat ${i + 1}: ${flatsData[i].balance} BDT`);
+            if (flatsData[i].balance > 0) {
+                defaulters.push(`Flat ${i + 1}: ${flatsData[i].balance} BDT`);
+                totalOutstanding += flatsData[i].balance; // NEW: Add to total
+            }
         }
 
         const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
@@ -295,7 +303,9 @@
         const defUL = document.getElementById('defaulterList');
         defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
     }
-
+// NEW: Update Dashboard Total Outstanding
+        document.getElementById('dashTotalOutstanding').innerText = totalOutstanding;
+    }
     function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
