@@ -18,26 +18,29 @@
         .section.active { display: block; }
         
         /* Mobile Responsive Table CSS */
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 14px; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #ced4da; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 14px; background: #fdfdfd; }
         th, td { border: 1px solid #ced4da; padding: 8px 4px; text-align: center; }
         th { background: #34495e; color: white; white-space: nowrap; }
-        /* Sticky Flat Column for Mobile Swiping */
         th:first-child, td:first-child { position: sticky; left: 0; background: #34495e; color: white; z-index: 2; font-weight: bold; width: 40px; }
         td:first-child { background: #e9ecef; color: #000; }
         
-        input { width: 60px; padding: 6px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        input, select { width: 100%; box-sizing: border-box; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
         input[type="number"] { -moz-appearance: textfield; }
         
-        /* Mobile-Friendly Expense Grid */
-        .expense-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; }
+        /* Input Grids */
+        .expense-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
         .expense-item { display: flex; flex-direction: column; font-size: 13px; font-weight: bold; }
-        .expense-item input { width: 100%; box-sizing: border-box; margin-top: 4px; }
         
         .btn { background: #198754; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 20px; }
         .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
         @media (min-width: 768px) { .dashboard-grid { grid-template-columns: 1fr 1fr; } }
         .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; }
+        
+        /* Quick Entry Styling */
+        .quick-entry { background: #e3f2fd; border-left: 5px solid #0d47a1; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .quick-entry h3 { margin-top: 0; color: #0d47a1; margin-bottom: 15px; }
+        .summary-label { text-align: right; font-size: 16px; font-weight: bold; margin-top: 10px; color: #198754; }
     </style>
 </head>
 <body>
@@ -45,7 +48,7 @@
 <div class="wrapper">
     <div class="header">
         <h2>Rent Dashboard</h2>
-        <input type="month" id="reportMonth" onchange="loadData()" style="width: 150px; padding: 8px;">
+        <input type="month" id="reportMonth" onchange="loadData()" style="width: 150px; padding: 8px; font-weight: bold;">
     </div>
 
     <div class="tabs">
@@ -54,6 +57,37 @@
     </div>
 
     <div id="operator" class="section active">
+        
+        <div class="quick-entry">
+            <h3>Flat Data Entry</h3>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                <strong style="font-size: 16px;">Select Flat:</strong>
+                <select id="flatSelector" onchange="loadFlatIntoForm()" style="width: 100px; font-weight: bold; background: #fff;">
+                    <option value="0">Flat 1</option><option value="1">Flat 2</option>
+                    <option value="2">Flat 3</option><option value="3">Flat 4</option>
+                    <option value="4">Flat 5</option><option value="5">Flat 6</option>
+                    <option value="6">Flat 7</option><option value="7">Flat 8</option>
+                    <option value="8">Flat 9</option><option value="9">Flat 10</option>
+                    <option value="10">Flat 11</option><option value="11">Flat 12</option>
+                    <option value="12">Flat 13</option><option value="13">Flat 14</option>
+                </select>
+            </div>
+            
+            <div class="expense-grid">
+                <div class="expense-item">Rent: <input type="number" id="qeRent" oninput="saveFormToFlat()"></div>
+                <div class="expense-item">Bills: <input type="number" id="qeBill" oninput="saveFormToFlat()"></div>
+                <div class="expense-item">Others: <input type="number" id="qeOth" oninput="saveFormToFlat()"></div>
+                <div class="expense-item">Paid Amount: <input type="number" id="qePaid" oninput="saveFormToFlat()" style="border: 2px solid #198754; background: #f8fff9;"></div>
+            </div>
+            
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #bbdefb; display: flex; flex-wrap: wrap; gap: 20px; font-size: 15px;">
+                <span>Prev Due: <strong id="qePrev">0</strong></span>
+                <span>Total Due: <strong id="qeTtl">0</strong></span>
+                <span>Balance: <strong id="qeBal" style="color: #dc3545;">0</strong></span>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 5px; color: #34495e;">Monthly Overview</h3>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -64,6 +98,10 @@
                 <tbody id="inputTable">
                     </tbody>
             </table>
+        </div>
+        
+        <div class="summary-label">
+            Total Collection: <span id="lblTotalCollection">0</span> BDT
         </div>
 
         <div class="dash-card" style="margin-top: 20px;">
@@ -80,6 +118,11 @@
                 <div class="expense-item">Cleaner: <input type="number" id="expCleaner" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Tax: <input type="number" id="expTax" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Bkash: <input type="number" id="expBkash" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Others: <input type="number" id="expOthers" value="0" oninput="calculateTotals()"></div>
+            </div>
+            
+            <div class="summary-label" style="color: #dc3545;">
+                Total Expense: <span id="lblTotalExpense">0</span> BDT
             </div>
         </div>
 
@@ -105,7 +148,7 @@
 </div>
 
 <script>
-    // --- INSERT YOUR FIREBASE CONFIGURATION HERE ---
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyDQzoJOodXx1kGwJqWo5ji2d041rpvcHlI",
         authDomain: "rent-management-db.firebaseapp.com",
@@ -118,54 +161,108 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Configured based on your requirements and previous data
-    const fixedRents = [6000, 8000, 8500, 11000, 7000, 9000, 10000, 7000, 6500, 7000, 7000, 9000, 10000, 11000];
+    // Base Constants
+    const fixedRents = [6000, 8000, 8500, 11000, 7000, 9000, 10000, 7000, 6500, 7000,7000, 9000, 10000, 11000];
     const fixedBills = [1580, 1580, 2080, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 0];
+    
+    // Central Data State (Stores the 14 flats actively)
+    let flatsData = [];
 
-    function initTable() {
+    // Initializes the HTML Table Structure (Read-Only)
+    function initTableHTML() {
         const tbody = document.getElementById('inputTable');
         tbody.innerHTML = '';
         for (let i = 0; i < 14; i++) {
-            tbody.innerHTML += `<tr>
+            tbody.innerHTML += `<tr id="row${i}">
                 <td>${i + 1}</td>
-                <td id="prev${i}" style="background:#e9ecef; font-weight:bold; font-size:13px;">0</td>
-                <td><input type="number" id="rent${i}" value="${fixedRents[i]}" oninput="calculateTotals()"></td>
-                <td><input type="number" id="bill${i}" value="${fixedBills[i]}" oninput="calculateTotals()"></td>
-                <td><input type="number" id="oth${i}" value="0" oninput="calculateTotals()"></td>
-                <td id="ttldue${i}" style="font-weight:bold;">0</td>
-                <td><input type="number" id="paid${i}" value="0" oninput="calculateTotals()" style="border: 2px solid #198754; background: #f8fff9;"></td>
-                <td id="bal${i}" style="font-weight:bold; color: #dc3545;">0</td>
+                <td id="tPrev${i}">0</td>
+                <td id="tRent${i}">0</td>
+                <td id="tBill${i}">0</td>
+                <td id="tOth${i}">0</td>
+                <td id="tTtl${i}" style="font-weight:bold;">0</td>
+                <td id="tPaid${i}" style="font-weight:bold; color:#198754;">0</td>
+                <td id="tBal${i}" style="font-weight:bold; color: #dc3545;">0</td>
             </tr>`;
         }
     }
 
+    // Loads the selected flat's data into the Input Form
+    function loadFlatIntoForm() {
+        const idx = parseInt(document.getElementById('flatSelector').value);
+        const data = flatsData[idx];
+        
+        // Populate inputs
+        document.getElementById('qeRent').value = data.rent;
+        document.getElementById('qeBill').value = data.bill;
+        document.getElementById('qeOth').value = data.others;
+        document.getElementById('qePaid').value = data.paid;
+        
+        // Populate Read-only info in form
+        document.getElementById('qePrev').innerText = data.prevDue;
+        document.getElementById('qeTtl').innerText = data.totalDue;
+        document.getElementById('qeBal').innerText = data.balance;
+        
+        // Highlight active row in table
+        for(let i=0; i<14; i++) {
+            document.getElementById(`row${i}`).style.backgroundColor = (i === idx) ? '#e3f2fd' : 'transparent';
+        }
+    }
+
+    // Triggers when caretaker types in the Form. Saves to state and updates UI instantly.
+    function saveFormToFlat() {
+        const idx = parseInt(document.getElementById('flatSelector').value);
+        
+        flatsData[idx].rent = parseFloat(document.getElementById('qeRent').value) || 0;
+        flatsData[idx].bill = parseFloat(document.getElementById('qeBill').value) || 0;
+        flatsData[idx].others = parseFloat(document.getElementById('qeOth').value) || 0;
+        flatsData[idx].paid = parseFloat(document.getElementById('qePaid').value) || 0;
+        
+        // Recalculate logic
+        flatsData[idx].totalDue = flatsData[idx].prevDue + flatsData[idx].rent + flatsData[idx].bill + flatsData[idx].others;
+        flatsData[idx].balance = flatsData[idx].totalDue - flatsData[idx].paid;
+        
+        // Update Form Labels
+        document.getElementById('qeTtl').innerText = flatsData[idx].totalDue;
+        document.getElementById('qeBal').innerText = flatsData[idx].balance;
+        
+        refreshTableUI();
+        calculateTotals();
+    }
+
+    // Updates the Read-Only Table text
+    function refreshTableUI() {
+        for (let i = 0; i < 14; i++) {
+            document.getElementById(`tPrev${i}`).innerText = flatsData[i].prevDue;
+            document.getElementById(`tRent${i}`).innerText = flatsData[i].rent;
+            document.getElementById(`tBill${i}`).innerText = flatsData[i].bill;
+            document.getElementById(`tOth${i}`).innerText = flatsData[i].others;
+            document.getElementById(`tTtl${i}`).innerText = flatsData[i].totalDue;
+            document.getElementById(`tPaid${i}`).innerText = flatsData[i].paid;
+            document.getElementById(`tBal${i}`).innerText = flatsData[i].balance;
+        }
+    }
+
+    // Calculates Dashboard and Summary Labels
     function calculateTotals() {
         let grossCollection = 0;
         const defaulters = [];
 
         for (let i = 0; i < 14; i++) {
-            const prev = parseFloat(document.getElementById(`prev${i}`).innerText) || 0;
-            const rent = parseFloat(document.getElementById(`rent${i}`).value) || 0;
-            const bill = parseFloat(document.getElementById(`bill${i}`).value) || 0;
-            const oth = parseFloat(document.getElementById(`oth${i}`).value) || 0;
-            const paid = parseFloat(document.getElementById(`paid${i}`).value) || 0;
-
-            const ttldue = prev + rent + bill + oth;
-            const bal = ttldue - paid;
-
-            document.getElementById(`ttldue${i}`).innerText = ttldue;
-            document.getElementById(`bal${i}`).innerText = bal;
-
-            grossCollection += paid;
-            if (bal > 0) defaulters.push(`Flat ${i + 1}: ${bal} BDT`);
+            grossCollection += flatsData[i].paid;
+            if (flatsData[i].balance > 0) defaulters.push(`Flat ${i + 1}: ${flatsData[i].balance} BDT`);
         }
 
-        const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash'];
+        const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
         let expTotal = 0;
         expIds.forEach(id => {
             expTotal += parseFloat(document.getElementById(id).value) || 0;
         });
 
+        // Update Labels under Input sections
+        document.getElementById('lblTotalCollection').innerText = grossCollection;
+        document.getElementById('lblTotalExpense').innerText = expTotal;
+
+        // Update Commander Dashboard
         document.getElementById('dashCollection').innerText = grossCollection;
         document.getElementById('dashExpenses').innerText = expTotal;
         document.getElementById('dashProfit').innerText = grossCollection - expTotal;
@@ -174,9 +271,13 @@
         defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
     }
 
+    // Main DB Load Function
     function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
+
+        // Reset state array
+        flatsData = Array(14).fill(null).map(() => ({ prevDue: 0, rent: 0, bill: 0, others: 0, paid: 0, totalDue: 0, balance: 0 }));
 
         db.ref('rent_records').once('value').then(snapshot => {
             const allRecords = snapshot.val() || {};
@@ -184,12 +285,16 @@
             if (allRecords[currentMonth]) {
                 const data = allRecords[currentMonth];
                 data.entries.forEach((entry, i) => {
-                    document.getElementById(`prev${i}`).innerText = entry.prevDue;
-                    document.getElementById(`rent${i}`).value = entry.rent;
-                    document.getElementById(`bill${i}`).value = entry.bill;
-                    document.getElementById(`oth${i}`).value = entry.others;
-                    document.getElementById(`paid${i}`).value = entry.paid;
+                    flatsData[i].prevDue = entry.prevDue;
+                    flatsData[i].rent = entry.rent;
+                    flatsData[i].bill = entry.bill;
+                    flatsData[i].others = entry.others;
+                    flatsData[i].paid = entry.paid;
+                    flatsData[i].totalDue = entry.prevDue + entry.rent + entry.bill + entry.others;
+                    flatsData[i].balance = entry.balance;
                 });
+                
+                // Load Expenses (Safely handles old data without 'othersExp')
                 document.getElementById('expGas').value = data.expenses.gas || 0;
                 document.getElementById('expWasa').value = data.expenses.wasa || 0;
                 document.getElementById('expElectric').value = data.expenses.electric || 0;
@@ -201,7 +306,10 @@
                 document.getElementById('expCleaner').value = data.expenses.cleaner || 0;
                 document.getElementById('expTax').value = data.expenses.tax || 0;
                 document.getElementById('expBkash').value = data.expenses.bkash || 0;
+                document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
+                
             } else {
+                // Rollover Logic for new month
                 const months = Object.keys(allRecords).sort();
                 const prevMonthKey = months.filter(m => m < currentMonth).pop();
 
@@ -210,19 +318,27 @@
                     if (prevMonthKey && allRecords[prevMonthKey]) {
                         lastBalance = allRecords[prevMonthKey].entries[i].balance;
                     }
-                    document.getElementById(`prev${i}`).innerText = lastBalance;
-                    document.getElementById(`paid${i}`).value = 0;
-                    document.getElementById(`oth${i}`).value = 0;
-                    document.getElementById(`rent${i}`).value = fixedRents[i];
-                    document.getElementById(`bill${i}`).value = fixedBills[i];
+                    flatsData[i].prevDue = lastBalance;
+                    flatsData[i].rent = fixedRents[i];
+                    flatsData[i].bill = fixedBills[i];
+                    flatsData[i].others = 0;
+                    flatsData[i].paid = 0;
+                    flatsData[i].totalDue = lastBalance + fixedRents[i] + fixedBills[i];
+                    flatsData[i].balance = flatsData[i].totalDue;
                 }
-                const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash'];
+                
+                // Reset Expenses UI
+                const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
             }
+            
+            refreshTableUI();
+            loadFlatIntoForm(); // Populates Flat 1 by default
             calculateTotals();
         });
     }
 
+    // Saves the JSON state array to Firebase
     function submitToDatabase() {
         const month = document.getElementById('reportMonth').value;
         if (!month) return alert("Please select a month first.");
@@ -231,14 +347,16 @@
         for (let i = 0; i < 14; i++) {
             monthData.entries.push({
                 flat: i + 1,
-                prevDue: parseFloat(document.getElementById(`prev${i}`).innerText) || 0,
-                rent: parseFloat(document.getElementById(`rent${i}`).value) || 0,
-                bill: parseFloat(document.getElementById(`bill${i}`).value) || 0,
-                others: parseFloat(document.getElementById(`oth${i}`).value) || 0,
-                paid: parseFloat(document.getElementById(`paid${i}`).value) || 0,
-                balance: parseFloat(document.getElementById(`bal${i}`).innerText) || 0
+                prevDue: flatsData[i].prevDue,
+                rent: flatsData[i].rent,
+                bill: flatsData[i].bill,
+                others: flatsData[i].others,
+                paid: flatsData[i].paid,
+                balance: flatsData[i].balance
             });
         }
+        
+        // Exact identical JSON structure + new 'othersExp' at the end
         monthData.expenses = {
             gas: parseFloat(document.getElementById('expGas').value) || 0,
             wasa: parseFloat(document.getElementById('expWasa').value) || 0,
@@ -250,7 +368,8 @@
             sanitary: parseFloat(document.getElementById('expSanitary').value) || 0,
             cleaner: parseFloat(document.getElementById('expCleaner').value) || 0,
             tax: parseFloat(document.getElementById('expTax').value) || 0,
-            bkash: parseFloat(document.getElementById('expBkash').value) || 0
+            bkash: parseFloat(document.getElementById('expBkash').value) || 0,
+            othersExp: parseFloat(document.getElementById('expOthers').value) || 0
         };
 
         db.ref('rent_records/' + month).set(monthData)
@@ -266,10 +385,9 @@
     }
 
     window.onload = () => {
-        initTable();
+        initTableHTML();
         const now = new Date();
-        const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        document.getElementById('reportMonth').value = monthStr;
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         loadData();
     };
 </script>
