@@ -17,7 +17,6 @@
         .section { display: none; }
         .section.active { display: block; }
         
-        /* Mobile Responsive Table CSS */
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #ced4da; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 14px; background: #fdfdfd; }
         th, td { border: 1px solid #ced4da; padding: 8px 4px; text-align: center; }
@@ -28,19 +27,19 @@
         input, select { width: 100%; box-sizing: border-box; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
         input[type="number"] { -moz-appearance: textfield; }
         
-        /* Input Grids */
         .expense-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
         .expense-item { display: flex; flex-direction: column; font-size: 13px; font-weight: bold; }
         
         .btn { background: #198754; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 20px; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px; }
-        @media (min-width: 768px) { .dashboard-grid { grid-template-columns: 1fr 1fr; } }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
         .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; }
         
-        /* Quick Entry Styling */
         .quick-entry { background: #e3f2fd; border-left: 5px solid #0d47a1; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
         .quick-entry h3 { margin-top: 0; color: #0d47a1; margin-bottom: 15px; }
         .summary-label { text-align: right; font-size: 16px; font-weight: bold; margin-top: 10px; color: #198754; }
+        
+        /* New Reconciliation Box Style */
+        .recon-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 4px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -126,6 +125,16 @@
             </div>
         </div>
 
+        <div class="recon-box">
+            <h3 style="margin-top: 0; color: #856404;">Deposit Reconciliation</h3>
+            <p style="font-weight: bold; margin-bottom: 10px;">Net Cash Available: <span id="lblNetCash" style="color: #198754; font-size: 18px;">0</span> BDT</p>
+            <div class="expense-grid">
+                <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Cash Retained: <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
+            </div>
+        </div>
+
         <button class="btn" onclick="submitToDatabase()">Sync to Database</button>
     </div>
 
@@ -138,7 +147,16 @@
                 <hr>
                 <p style="font-size: 18px; color: #198754; font-weight: bold;">Net Monthly Profit: <strong id="dashProfit">0</strong> BDT</p>
             </div>
-            <div class="dash-card">
+            
+            <div class="dash-card" style="border-left-color: #ffc107;">
+                <h3 style="margin-top: 0;">Fund Allocation</h3>
+                <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
+                <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
+                <hr>
+                <p style="font-size: 16px; color: #856404; font-weight: bold;">Cash in Hand: <strong id="dashCash">0</strong> BDT</p>
+            </div>
+
+            <div class="dash-card" style="border-left-color: #dc3545;">
                 <h3 style="margin-top: 0;">Outstanding Defaulters</h3>
                 <ul id="defaulterList" style="color: #dc3545; font-weight: bold; margin-bottom: 0;">
                     </ul>
@@ -161,14 +179,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Base Constants
-    const fixedRents = [6000, 8000, 8500, 11000, 7000, 9000, 10000, 7000, 6500, 7000,7000, 9000, 10000, 11000];
+    const fixedRents = [5800, 8000, 8500, 11000, 6500, 9000, 7000, 7500, 8000, 8000, 8000, 8000, 8000, 8000];
     const fixedBills = [1580, 1580, 2080, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 0];
     
-    // Central Data State (Stores the 14 flats actively)
     let flatsData = [];
 
-    // Initializes the HTML Table Structure (Read-Only)
     function initTableHTML() {
         const tbody = document.getElementById('inputTable');
         tbody.innerHTML = '';
@@ -186,29 +201,24 @@
         }
     }
 
-    // Loads the selected flat's data into the Input Form
     function loadFlatIntoForm() {
         const idx = parseInt(document.getElementById('flatSelector').value);
         const data = flatsData[idx];
         
-        // Populate inputs
         document.getElementById('qeRent').value = data.rent;
         document.getElementById('qeBill').value = data.bill;
         document.getElementById('qeOth').value = data.others;
         document.getElementById('qePaid').value = data.paid;
         
-        // Populate Read-only info in form
         document.getElementById('qePrev').innerText = data.prevDue;
         document.getElementById('qeTtl').innerText = data.totalDue;
         document.getElementById('qeBal').innerText = data.balance;
         
-        // Highlight active row in table
         for(let i=0; i<14; i++) {
             document.getElementById(`row${i}`).style.backgroundColor = (i === idx) ? '#e3f2fd' : 'transparent';
         }
     }
 
-    // Triggers when caretaker types in the Form. Saves to state and updates UI instantly.
     function saveFormToFlat() {
         const idx = parseInt(document.getElementById('flatSelector').value);
         
@@ -217,11 +227,9 @@
         flatsData[idx].others = parseFloat(document.getElementById('qeOth').value) || 0;
         flatsData[idx].paid = parseFloat(document.getElementById('qePaid').value) || 0;
         
-        // Recalculate logic
         flatsData[idx].totalDue = flatsData[idx].prevDue + flatsData[idx].rent + flatsData[idx].bill + flatsData[idx].others;
         flatsData[idx].balance = flatsData[idx].totalDue - flatsData[idx].paid;
         
-        // Update Form Labels
         document.getElementById('qeTtl').innerText = flatsData[idx].totalDue;
         document.getElementById('qeBal').innerText = flatsData[idx].balance;
         
@@ -229,7 +237,6 @@
         calculateTotals();
     }
 
-    // Updates the Read-Only Table text
     function refreshTableUI() {
         for (let i = 0; i < 14; i++) {
             document.getElementById(`tPrev${i}`).innerText = flatsData[i].prevDue;
@@ -242,7 +249,6 @@
         }
     }
 
-    // Calculates Dashboard and Summary Labels
     function calculateTotals() {
         let grossCollection = 0;
         const defaulters = [];
@@ -258,25 +264,37 @@
             expTotal += parseFloat(document.getElementById(id).value) || 0;
         });
 
-        // Update Labels under Input sections
+        // Calculate Net Profit and Cash Retained
+        const netProfit = grossCollection - expTotal;
+        document.getElementById('lblNetCash').innerText = netProfit;
+
+        const bankDep = parseFloat(document.getElementById('depBank').value) || 0;
+        const dpsDep = parseFloat(document.getElementById('depDps').value) || 0;
+        const cashRetained = netProfit - bankDep - dpsDep;
+        
+        document.getElementById('depCash').value = cashRetained;
+
+        // Update Labels
         document.getElementById('lblTotalCollection').innerText = grossCollection;
         document.getElementById('lblTotalExpense').innerText = expTotal;
 
         // Update Commander Dashboard
         document.getElementById('dashCollection').innerText = grossCollection;
         document.getElementById('dashExpenses').innerText = expTotal;
-        document.getElementById('dashProfit').innerText = grossCollection - expTotal;
+        document.getElementById('dashProfit').innerText = netProfit;
+        
+        document.getElementById('dashBank').innerText = bankDep;
+        document.getElementById('dashDps').innerText = dpsDep;
+        document.getElementById('dashCash').innerText = cashRetained;
         
         const defUL = document.getElementById('defaulterList');
         defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
     }
 
-    // Main DB Load Function
     function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
 
-        // Reset state array
         flatsData = Array(14).fill(null).map(() => ({ prevDue: 0, rent: 0, bill: 0, others: 0, paid: 0, totalDue: 0, balance: 0 }));
 
         db.ref('rent_records').once('value').then(snapshot => {
@@ -294,7 +312,6 @@
                     flatsData[i].balance = entry.balance;
                 });
                 
-                // Load Expenses (Safely handles old data without 'othersExp')
                 document.getElementById('expGas').value = data.expenses.gas || 0;
                 document.getElementById('expWasa').value = data.expenses.wasa || 0;
                 document.getElementById('expElectric').value = data.expenses.electric || 0;
@@ -308,8 +325,11 @@
                 document.getElementById('expBkash').value = data.expenses.bkash || 0;
                 document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
                 
+                // Load Deposit Data safely (supports older records)
+                document.getElementById('depBank').value = data.deposits?.bank || 0;
+                document.getElementById('depDps').value = data.deposits?.dps || 0;
+                
             } else {
-                // Rollover Logic for new month
                 const months = Object.keys(allRecords).sort();
                 const prevMonthKey = months.filter(m => m < currentMonth).pop();
 
@@ -327,23 +347,25 @@
                     flatsData[i].balance = flatsData[i].totalDue;
                 }
                 
-                // Reset Expenses UI
                 const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
+                
+                // Reset Deposits
+                document.getElementById('depBank').value = 0;
+                document.getElementById('depDps').value = 0;
             }
             
             refreshTableUI();
-            loadFlatIntoForm(); // Populates Flat 1 by default
+            loadFlatIntoForm();
             calculateTotals();
         });
     }
 
-    // Saves the JSON state array to Firebase
     function submitToDatabase() {
         const month = document.getElementById('reportMonth').value;
         if (!month) return alert("Please select a month first.");
 
-        const monthData = { entries: [], expenses: {} };
+        const monthData = { entries: [], expenses: {}, deposits: {} };
         for (let i = 0; i < 14; i++) {
             monthData.entries.push({
                 flat: i + 1,
@@ -356,7 +378,6 @@
             });
         }
         
-        // Exact identical JSON structure + new 'othersExp' at the end
         monthData.expenses = {
             gas: parseFloat(document.getElementById('expGas').value) || 0,
             wasa: parseFloat(document.getElementById('expWasa').value) || 0,
@@ -370,6 +391,13 @@
             tax: parseFloat(document.getElementById('expTax').value) || 0,
             bkash: parseFloat(document.getElementById('expBkash').value) || 0,
             othersExp: parseFloat(document.getElementById('expOthers').value) || 0
+        };
+
+        // NEW: Save Deposit Data
+        monthData.deposits = {
+            bank: parseFloat(document.getElementById('depBank').value) || 0,
+            dps: parseFloat(document.getElementById('depDps').value) || 0,
+            cash: parseFloat(document.getElementById('depCash').value) || 0
         };
 
         db.ref('rent_records/' + month).set(monthData)
