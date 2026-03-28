@@ -131,6 +131,7 @@
             <div class="expense-grid">
                 <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Cash Deposit: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Cash Retained: <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
             </div>
         </div>
@@ -149,12 +150,13 @@
             </div>
             
             <div class="dash-card" style="border-left-color: #ffc107;">
-                <h3 style="margin-top: 0;">Fund Allocation</h3>
-                <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
-                <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
-                <hr>
-                <p style="font-size: 16px; color: #856404; font-weight: bold;">Cash in Hand: <strong id="dashCash">0</strong> BDT</p>
-            </div>
+    <h3 style="margin-top: 0;">Fund Allocation</h3>
+    <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
+    <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
+    <p>Cash Deposit: <strong id="dashCashDeposit">0</strong> BDT</p>
+    <hr>
+    <p style="font-size: 16px; color: #856404; font-weight: bold;">Cash in Hand: <strong id="dashCash">0</strong> BDT</p>
+</div>
 
             <div class="dash-card" style="border-left-color: #dc3545;">
                 <h3 style="margin-top: 0;">Outstanding Defaulters</h3>
@@ -270,7 +272,10 @@
 
         const bankDep = parseFloat(document.getElementById('depBank').value) || 0;
         const dpsDep = parseFloat(document.getElementById('depDps').value) || 0;
-        const cashRetained = netProfit - bankDep - dpsDep;
+        const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0; // NEW
+        
+        // Subtract Bank, DPS, and Cash Deposit to find the Retained Cash
+        const cashRetained = netProfit - bankDep - dpsDep - cashDep; 
         
         document.getElementById('depCash').value = cashRetained;
 
@@ -285,6 +290,7 @@
         
         document.getElementById('dashBank').innerText = bankDep;
         document.getElementById('dashDps').innerText = dpsDep;
+        document.getElementById('dashCashDeposit').innerText = cashDep; // NEW
         document.getElementById('dashCash').innerText = cashRetained;
         
         const defUL = document.getElementById('defaulterList');
@@ -328,7 +334,7 @@
                 // Load Deposit Data safely (supports older records)
                 document.getElementById('depBank').value = data.deposits?.bank || 0;
                 document.getElementById('depDps').value = data.deposits?.dps || 0;
-                
+                document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; // NEW                
             } else {
                 const months = Object.keys(allRecords).sort();
                 const prevMonthKey = months.filter(m => m < currentMonth).pop();
@@ -353,7 +359,7 @@
                 // Reset Deposits
                 document.getElementById('depBank').value = 0;
                 document.getElementById('depDps').value = 0;
-            }
+                document.getElementById('depCashDeposit').value = 0; // NEW            }
             
             refreshTableUI();
             loadFlatIntoForm();
@@ -393,10 +399,11 @@
             othersExp: parseFloat(document.getElementById('expOthers').value) || 0
         };
 
-        // NEW: Save Deposit Data
+        // Save Deposit Data
         monthData.deposits = {
             bank: parseFloat(document.getElementById('depBank').value) || 0,
             dps: parseFloat(document.getElementById('depDps').value) || 0,
+            cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0, // NEW
             cash: parseFloat(document.getElementById('depCash').value) || 0
         };
 
