@@ -257,14 +257,14 @@
 
     function calculateTotals() {
         let grossCollection = 0;
-        let totalOutstanding = 0; // NEW: Track total arrears
+        let totalOutstanding = 0;
         const defaulters = [];
 
         for (let i = 0; i < 14; i++) {
             grossCollection += flatsData[i].paid;
             if (flatsData[i].balance > 0) {
                 defaulters.push(`Flat ${i + 1}: ${flatsData[i].balance} BDT`);
-                totalOutstanding += flatsData[i].balance; // NEW: Add to total
+                totalOutstanding += flatsData[i].balance;
             }
         }
 
@@ -274,38 +274,36 @@
             expTotal += parseFloat(document.getElementById(id).value) || 0;
         });
 
-        // Calculate Net Profit and Cash Retained
         const netProfit = grossCollection - expTotal;
         document.getElementById('lblNetCash').innerText = netProfit;
 
         const bankDep = parseFloat(document.getElementById('depBank').value) || 0;
         const dpsDep = parseFloat(document.getElementById('depDps').value) || 0;
-        const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0; // ADDED CASH DEPOSIT
+        const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0;
         
-        const cashRetained = netProfit - bankDep - dpsDep - cashDep; // UPDATED MATH
+        const cashRetained = netProfit - bankDep - dpsDep - cashDep; 
         
         document.getElementById('depCash').value = cashRetained;
 
-        // Update Labels
         document.getElementById('lblTotalCollection').innerText = grossCollection;
         document.getElementById('lblTotalExpense').innerText = expTotal;
 
-        // Update Commander Dashboard
         document.getElementById('dashCollection').innerText = grossCollection;
         document.getElementById('dashExpenses').innerText = expTotal;
         document.getElementById('dashProfit').innerText = netProfit;
         
         document.getElementById('dashBank').innerText = bankDep;
         document.getElementById('dashDps').innerText = dpsDep;
-        document.getElementById('dashCashDeposit').innerText = cashDep; // ADDED CASH DEPOSIT
+        document.getElementById('dashCashDeposit').innerText = cashDep; 
         document.getElementById('dashCash').innerText = cashRetained;
         
         const defUL = document.getElementById('defaulterList');
         defUL.innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
-    }
-// NEW: Update Dashboard Total Outstanding
+        
+        // This is where the syntax error was
         document.getElementById('dashTotalOutstanding').innerText = totalOutstanding;
     }
+
     function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
@@ -340,10 +338,9 @@
                 document.getElementById('expBkash').value = data.expenses.bkash || 0;
                 document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
                 
-                // Load Deposit Data safely
                 document.getElementById('depBank').value = data.deposits?.bank || 0;
                 document.getElementById('depDps').value = data.deposits?.dps || 0;
-                document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; // ADDED CASH DEPOSIT
+                document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; 
                 
             } else {
                 const months = Object.keys(allRecords).sort();
@@ -366,10 +363,9 @@
                 const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
                 
-                // Reset Deposits
                 document.getElementById('depBank').value = 0;
                 document.getElementById('depDps').value = 0;
-                document.getElementById('depCashDeposit').value = 0; // ADDED CASH DEPOSIT
+                document.getElementById('depCashDeposit').value = 0; 
             }
             
             refreshTableUI();
@@ -410,11 +406,10 @@
             othersExp: parseFloat(document.getElementById('expOthers').value) || 0
         };
 
-        // Save Deposit Data
         monthData.deposits = {
             bank: parseFloat(document.getElementById('depBank').value) || 0,
             dps: parseFloat(document.getElementById('depDps').value) || 0,
-            cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0, // ADDED CASH DEPOSIT
+            cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0,
             cash: parseFloat(document.getElementById('depCash').value) || 0
         };
 
