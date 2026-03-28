@@ -113,8 +113,8 @@
             <div class="expense-grid">
                 <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Cash Deposit: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Cash Retained (Caretaker): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
+                <div class="expense-item">Deposit (Billal): <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Cash (Billal): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
                 <div class="expense-item">Total Cash In Hand: <input type="number" id="depTotalCash" value="0" readonly style="background: #d4edda; border: 1px solid #28a745; color: #155724; font-weight: bold;"></div>
             </div>
         </div>
@@ -264,10 +264,10 @@
         const flat14Paid = flatsData[13].paid || 0;
         
         // Caretaker Retained excludes Flat 14
-        const cashRetained = netProfit - bankDep - dpsDep - cashDep - flat14Paid; 
+        const cashRetained = netProfit - cashDep - flat14Paid; 
         
         // Total Liquid Cash (Includes Flat 14 direct collection)
-        const totalCashInHand = netProfit - bankDep - dpsDep - cashDep;
+        const totalCashInHand = netProfit - bankDep - dpsDep - cashRetained;
         
         document.getElementById('depCash').value = cashRetained;
         document.getElementById('depTotalCash').value = totalCashInHand;
