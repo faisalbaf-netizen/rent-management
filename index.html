@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* --- SCREEN STYLES --- */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 10px; }
         .wrapper { max-width: 1200px; margin: auto; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .header { text-align: center; color: #2c3e50; border-bottom: 2px solid #34495e; padding-bottom: 10px; margin-bottom: 15px; }
@@ -20,58 +19,37 @@
         .section.active { display: block; }
         
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; border: 1px solid #ced4da; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 14px; background: #fdfdfd; }
-        th, td { border: 1px solid #ced4da; padding: 8px 4px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; font-size: 13px; background: #fdfdfd; }
+        th, td { border: 1px solid #ced4da; padding: 6px 4px; text-align: center; }
         th { background: #34495e; color: white; white-space: nowrap; }
         th:first-child, td:first-child { position: sticky; left: 0; background: #34495e; color: white; z-index: 2; font-weight: bold; width: 40px; }
         td:first-child { background: #e9ecef; color: #000; }
         
-        input, select { width: 100%; box-sizing: border-box; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
-        input[type="number"] { -moz-appearance: textfield; }
-        
-        .expense-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
-        .expense-item { display: flex; flex-direction: column; font-size: 13px; font-weight: bold; }
-        
+        input, select { width: 100%; box-sizing: border-box; padding: 8px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         .btn { background: #198754; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 20px; }
         .btn-backup { background: #0d6efd; margin-top: 10px; }
         .btn-print { background: #4b4b4b; margin-top: 10px; }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
-        .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; }
         
+        .expense-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-top: 10px; }
+        .expense-item { display: flex; flex-direction: column; font-size: 12px; font-weight: bold; }
+        .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; margin-bottom: 15px; }
         .quick-entry { background: #e3f2fd; border-left: 5px solid #0d47a1; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
-        .quick-entry h3 { margin-top: 0; color: #0d47a1; margin-bottom: 15px; }
-        .summary-label { text-align: right; font-size: 16px; font-weight: bold; margin-top: 10px; color: #198754; }
         .recon-box { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 4px; margin-top: 20px; }
-        
-        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; }
-        
+        .summary-label { text-align: right; font-size: 15px; font-weight: bold; margin-top: 10px; color: #198754; }
+
         #printSection { display: none; }
 
-        /* --- UPDATED PRINT STYLES FOR A4 COMPRESSION --- */
         @media print {
-            @page { size: A4; margin: 10mm; } /* Forces A4 geometry with tight 1cm margins */
-            body { background: #fff; margin: 0; padding: 0; font-family: 'Times New Roman', Times, serif; }
+            @page { size: A4; margin: 10mm; }
+            body { background: #fff; margin: 0; padding: 0; font-family: 'Times New Roman', serif; }
             .wrapper { display: none !important; } 
             #printSection { display: block !important; width: 100%; }
-            
-            .print-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; }
-            .print-header h1 { margin: 0; font-size: 20px; text-transform: uppercase; }
-            .print-header p { margin: 3px 0 0; font-size: 12px; }
-            
-            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
-            .print-table th, .print-table td { border: 1px solid #000; padding: 4px; text-align: center; } /* Compressed padding */
-            .print-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            
-            .print-grid { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
-            .print-box { border: 1px solid #000; padding: 8px; width: 48%; }
-            .print-box h3 { margin-top: 0; font-size: 13px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px; }
-            
-            .print-row { display: flex; justify-content: space-between; margin-bottom: 2px; } /* Compressed row spacing */
-            .print-total { font-weight: bold; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px; }
-            
-            /* Signature block pulled up tightly to prevent page breaks */
-            .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; }
-            .print-sig-line { border-top: 1px solid #000; width: 220px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 12px; }
+            .print-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 4px; text-align: center; }
+            .print-box { border: 1px solid #000; padding: 8px; width: 48%; font-size: 11px; }
+            .print-grid { display: flex; justify-content: space-between; }
+            .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; }
+            .print-sig-line { border-top: 1px solid #000; width: 200px; text-align: center; padding-top: 5px; font-weight: bold; }
         }
     </style>
 </head>
@@ -91,36 +69,28 @@
     <div id="operator" class="section active">
         <div class="quick-entry">
             <h3>Flat Data Entry</h3>
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                <strong style="font-size: 16px;">Select Flat:</strong>
-                <select id="flatSelector" onchange="loadFlatIntoForm()" style="width: 100px; font-weight: bold; background: #fff;">
-                    <option value="0">Flat 1</option><option value="1">Flat 2</option><option value="2">Flat 3</option><option value="3">Flat 4</option><option value="4">Flat 5</option><option value="5">Flat 6</option><option value="6">Flat 7</option><option value="7">Flat 8</option><option value="8">Flat 9</option><option value="9">Flat 10</option><option value="10">Flat 11</option><option value="11">Flat 12</option><option value="12">Flat 13</option><option value="13">Flat 14</option>
-                </select>
-            </div>
+            <select id="flatSelector" onchange="loadFlatIntoForm()" style="width: 120px; margin-bottom: 10px;">
+                <option value="0">Flat 1</option><option value="1">Flat 2</option><option value="2">Flat 3</option><option value="3">Flat 4</option><option value="4">Flat 5</option><option value="5">Flat 6</option><option value="6">Flat 7</option><option value="7">Flat 8</option><option value="8">Flat 9</option><option value="9">Flat 10</option><option value="10">Flat 11</option><option value="11">Flat 12</option><option value="12">Flat 13</option><option value="13">Flat 14</option>
+            </select>
             <div class="expense-grid">
                 <div class="expense-item">Rent: <input type="number" id="qeRent" oninput="saveFormToFlat()"></div>
                 <div class="expense-item">Bills: <input type="number" id="qeBill" oninput="saveFormToFlat()"></div>
                 <div class="expense-item">Others: <input type="number" id="qeOth" oninput="saveFormToFlat()"></div>
-                <div class="expense-item">Paid Amount: <input type="number" id="qePaid" oninput="saveFormToFlat()" style="border: 2px solid #198754; background: #f8fff9;"></div>
+                <div class="expense-item">Paid: <input type="number" id="qePaid" oninput="saveFormToFlat()" style="background:#f8fff9; border:2px solid #198754;"></div>
             </div>
-            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #bbdefb; display: flex; flex-wrap: wrap; gap: 20px; font-size: 15px;">
-                <span>Prev Due: <strong id="qePrev">0</strong></span>
-                <span>Total Due: <strong id="qeTtl">0</strong></span>
-                <span>Balance: <strong id="qeBal" style="color: #dc3545;">0</strong></span>
-            </div>
+            <p style="margin-top:10px;">Total Due: <strong id="qeTtl">0</strong> | Balance: <strong id="qeBal" style="color:red;">0</strong></p>
         </div>
 
-        <h3 style="margin-bottom: 5px; color: #34495e;">Monthly Overview</h3>
         <div class="table-responsive">
             <table>
-                <thead><tr><th>Flat</th><th>Prev. Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Due</th><th>Paid</th><th>Balance</th></tr></thead>
+                <thead><tr><th>Flat</th><th>Prev Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total</th><th>Paid</th><th>Bal</th></tr></thead>
                 <tbody id="inputTable"></tbody>
             </table>
         </div>
-        <div class="summary-label">Total Collection: <span id="lblTotalCollection">0</span> BDT</div>
+        <div class="summary-label">Total Collection: <span id="lblTotalCollection">0</span></div>
 
-        <div class="dash-card" style="margin-top: 20px;">
-            <h3 style="margin-top: 0;">Monthly Expenditures</h3>
+        <div class="dash-card" style="margin-top:20px;">
+            <h3>Expenditures</h3>
             <div class="expense-grid">
                 <div class="expense-item">Gas: <input type="number" id="expGas" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">WASA: <input type="number" id="expWasa" value="0" oninput="calculateTotals()"></div>
@@ -133,75 +103,49 @@
                 <div class="expense-item">Cleaner: <input type="number" id="expCleaner" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Tax: <input type="number" id="expTax" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Bkash: <input type="number" id="expBkash" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Charity: <input type="number" id="expCharity" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Others: <input type="number" id="expOthers" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Direct Charity: <input type="number" id="expCharityDirect" value="0" oninput="calculateTotals()" title="Deducted from Flat 14 / Owner"></div>
+                <div class="expense-item">Caretaker Charity: <input type="number" id="expCharityCaretaker" value="0" oninput="calculateTotals()" title="Deducted from Caretaker Cash"></div>
+                <div class="expense-item">Misc Others: <input type="number" id="expOthers" value="0" oninput="calculateTotals()"></div>
             </div>
-            <div class="summary-label" style="color: #dc3545;">Total Expense: <span id="lblTotalExpense">0</span> BDT</div>
+            <div class="summary-label" style="color:red;">Total Expense: <span id="lblTotalExpense">0</span></div>
         </div>
 
         <div class="recon-box">
-            <h3 style="margin-top: 0; color: #856404;">Deposit Reconciliation</h3>
-            <p style="font-weight: bold; margin-bottom: 10px;">Net Cash Available: <span id="lblNetCash" style="color: #198754; font-size: 18px;">0</span> BDT</p>
+            <h3>Reconciliation</h3>
             <div class="expense-grid">
-                <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">জমা : <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">খুচরা : <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
-                <div class="expense-item">Total Cash In Hand: <input type="number" id="depTotalCash" value="0" readonly style="background: #d4edda; border: 1px solid #28a745; color: #155724; font-weight: bold;"></div>
+                <div class="expense-item">Bank: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">DPS: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Cash Dep: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Caretaker Retained: <input type="number" id="depCash" readonly style="background:#eee;"></div>
+                <div class="expense-item">Total Cash in Hand: <input type="number" id="depTotalCash" readonly style="background:#d4edda; font-weight:bold;"></div>
             </div>
         </div>
-
         <button class="btn" onclick="submitToDatabase()">Sync to Database</button>
     </div>
 
     <div id="commander" class="section">
         <div class="dashboard-grid">
             <div class="dash-card">
-                <h3 style="margin-top: 0;">Monthly Overview</h3>
-                <p>Gross Collection: <strong id="dashCollection">0</strong> BDT</p>
-                <p>Total Expenditures: <strong id="dashExpenses">0</strong> BDT</p>
-                <hr>
-                <p style="font-size: 18px; color: #198754; font-weight: bold;">Net Profit: <strong id="dashProfit">0</strong> BDT</p>
+                <h3>Monthly Summary</h3>
+                <p>Gross: <strong id="dashCollection">0</strong></p>
+                <p>Expense: <strong id="dashExpenses">0</strong></p>
+                <p>Net Profit: <strong id="dashProfit" style="color:green;">0</strong></p>
             </div>
-            
-            <div class="dash-card" style="border-left-color: #ffc107;">
-                <h3 style="margin-top: 0;">Fund Allocation</h3>
-                <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
-                <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
-                <p>জমা : <strong id="dashCashDeposit">0</strong> BDT</p>
-                <p>খুচরা : <strong id="dashCashRetained">0</strong> BDT</p>
-                <p>Flat 14 Collection (Direct): <strong id="dashFlat14">0</strong> BDT</p>
-                <hr>
-                <p style="font-size: 16px; color: #856404; font-weight: bold;">Total Cash in Hand: <strong id="dashTotalCash">0</strong> BDT</p>
+            <div class="dash-card">
+                <h3>Cash Breakdown</h3>
+                <p>Caretaker Retained: <strong id="dashCashRetained">0</strong></p>
+                <p>Flat 14 (Direct): <strong id="dashFlat14">0</strong></p>
+                <p>Total Cash in Hand: <strong id="dashTotalCash">0</strong></p>
             </div>
-
-            <div class="dash-card" style="border-left-color: #dc3545;">
-                <h3 style="margin-top: 0;">Outstanding Defaulters</h3>
-                <ul id="defaulterList" style="color: #dc3545; font-weight: bold; margin-bottom: 0; font-size: 13px;"></ul>
-                <hr style="border-top: 1px solid #f5c6cb;">
-                <p style="font-size: 16px; color: #dc3545; font-weight: bold; margin-top: 10px;">Total Outstanding: <strong id="dashTotalOutstanding">0</strong> BDT</p>
+            <div class="dash-card" style="border-left-color:red;">
+                <h3>Defaulters (Total: <span id="dashTotalOutstanding">0</span>)</h3>
+                <ul id="defaulterList" style="font-size:12px;"></ul>
             </div>
         </div>
-
-        <h2 style="color: #2c3e50; border-bottom: 2px solid #34495e; padding-bottom: 5px; margin-top: 30px;">Strategic Analytics (July-June FY)</h2>
-        <div class="dashboard-grid">
-            <div class="dash-card" style="border-left-color: #0d6efd;">
-                <h3 style="margin-top: 0; color: #0d6efd;">Financial Year Summary</h3>
-                <p>Total FY Income: <strong id="fyIncome">0</strong> BDT</p>
-                <p>Total FY Utilities: <strong id="fyUtilities">0</strong> BDT</p>
-                <p>Total FY Maintenance: <strong id="fyMaintenance">0</strong> BDT</p>
-                <hr>
-                <p style="font-size: 18px; color: #198754; font-weight: bold;">FY Net Income: <strong id="fyNet">0</strong> BDT</p>
-            </div>
-        </div>
-
-        <div class="chart-container">
-            <canvas id="financeChart"></canvas>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn btn-print" style="flex: 1;" onclick="printMonthlyRecord()">🖨️ Print Monthly Record</button>
-            <button class="btn btn-backup" style="flex: 1;" onclick="downloadBackupCSV()">📥 Download Full CSV Backup</button>
+        <div class="chart-container"><canvas id="financeChart"></canvas></div>
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-print" onclick="printMonthlyRecord()">Print Record</button>
+            <button class="btn btn-backup" onclick="downloadBackupCSV()">Download CSV</button>
         </div>
     </div>
 </div>
@@ -209,7 +153,6 @@
 <div id="printSection"></div>
 
 <script>
-    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyDQzoJOodXx1kGwJqWo5ji2d041rpvcHlI",
         authDomain: "rent-management-db.firebaseapp.com",
@@ -224,32 +167,54 @@
 
     const fixedRents = [6000, 8000, 8500, 11000, 7000, 9000, 10000, 7000, 7000, 7000, 7000, 9000, 10000, 11000];
     const fixedBills = [1580, 1580, 2080, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 1580, 0];
-    
     let flatsData = [];
-    let globalRecords = {}; 
+    let globalRecords = {};
     let chartInstance = null;
 
-    function initTableHTML() {
+    function initTable() {
         const tbody = document.getElementById('inputTable');
         tbody.innerHTML = '';
         for (let i = 0; i < 14; i++) {
-            tbody.innerHTML += `<tr id="row${i}">
-                <td>${i + 1}</td><td id="tPrev${i}">0</td><td id="tRent${i}">0</td><td id="tBill${i}">0</td><td id="tOth${i}">0</td><td id="tTtl${i}" style="font-weight:bold;">0</td><td id="tPaid${i}" style="font-weight:bold; color:#198754;">0</td><td id="tBal${i}" style="font-weight:bold; color: #dc3545;">0</td>
-            </tr>`;
+            tbody.innerHTML += `<tr id="row${i}"><td>${i+1}</td><td id="tPrev${i}">0</td><td id="tRent${i}">0</td><td id="tBill${i}">0</td><td id="tOth${i}">0</td><td id="tTtl${i}">0</td><td id="tPaid${i}" style="color:green; font-weight:bold;">0</td><td id="tBal${i}" style="color:red;">0</td></tr>`;
         }
     }
 
-    function loadFlatIntoForm() {
-        const idx = parseInt(document.getElementById('flatSelector').value);
-        const data = flatsData[idx];
-        document.getElementById('qeRent').value = data.rent;
-        document.getElementById('qeBill').value = data.bill;
-        document.getElementById('qeOth').value = data.others;
-        document.getElementById('qePaid').value = data.paid;
-        document.getElementById('qePrev').innerText = data.prevDue;
-        document.getElementById('qeTtl').innerText = data.totalDue;
-        document.getElementById('qeBal').innerText = data.balance;
-        for(let i=0; i<14; i++) document.getElementById(`row${i}`).style.backgroundColor = (i === idx) ? '#e3f2fd' : 'transparent';
+    function calculateTotals() {
+        let gross = 0, outstanding = 0; const defaulters = [];
+        for (let i = 0; i < 14; i++) {
+            gross += flatsData[i].paid;
+            if (flatsData[i].balance > 0) {
+                defaulters.push(`Flat ${i+1}: ${flatsData[i].balance}`);
+                outstanding += flatsData[i].balance;
+            }
+        }
+
+        const expIds = ['expGas','expWasa','expElectric','expMosque','expGuard','expRepair','expPaint','expSanitary','expCleaner','expTax','expBkash','expCharityDirect','expCharityCaretaker','expOthers'];
+        let expTotal = 0; expIds.forEach(id => expTotal += parseFloat(document.getElementById(id).value) || 0);
+        
+        const netProfit = gross - expTotal;
+        const bank = parseFloat(document.getElementById('depBank').value) || 0;
+        const dps = parseFloat(document.getElementById('depDps').value) || 0;
+        const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0;
+        const flat14Paid = flatsData[13].paid || 0;
+        const charityCaretaker = parseFloat(document.getElementById('expCharityCaretaker').value) || 0;
+
+        // NEW LOGIC: Caretaker Retained excludes Flat 14 and Caretaker's Charity Spending
+        const caretakerRetained = netProfit - bank - dps - cashDep - flat14Paid - charityCaretaker;
+        const totalCashInHand = netProfit - bank - dps - cashDep;
+
+        document.getElementById('depCash').value = caretakerRetained;
+        document.getElementById('depTotalCash').value = totalCashInHand;
+        document.getElementById('lblTotalCollection').innerText = gross;
+        document.getElementById('lblTotalExpense').innerText = expTotal;
+        document.getElementById('dashCollection').innerText = gross;
+        document.getElementById('dashExpenses').innerText = expTotal;
+        document.getElementById('dashProfit').innerText = netProfit;
+        document.getElementById('dashCashRetained').innerText = caretakerRetained;
+        document.getElementById('dashFlat14').innerText = flat14Paid;
+        document.getElementById('dashTotalCash').innerText = totalCashInHand;
+        document.getElementById('dashTotalOutstanding').innerText = outstanding;
+        document.getElementById('defaulterList').innerHTML = defaulters.map(d => `<li>${d}</li>`).join('');
     }
 
     function saveFormToFlat() {
@@ -260,291 +225,149 @@
         flatsData[idx].paid = parseFloat(document.getElementById('qePaid').value) || 0;
         flatsData[idx].totalDue = flatsData[idx].prevDue + flatsData[idx].rent + flatsData[idx].bill + flatsData[idx].others;
         flatsData[idx].balance = flatsData[idx].totalDue - flatsData[idx].paid;
+        
         document.getElementById('qeTtl').innerText = flatsData[idx].totalDue;
         document.getElementById('qeBal').innerText = flatsData[idx].balance;
-        refreshTableUI(); calculateTotals();
+        
+        const ids = ['tRent','tBill','tOth','tTtl','tPaid','tBal'];
+        const vals = [flatsData[idx].rent, flatsData[idx].bill, flatsData[idx].others, flatsData[idx].totalDue, flatsData[idx].paid, flatsData[idx].balance];
+        ids.forEach((id, i) => document.getElementById(id + idx).innerText = vals[i]);
+        calculateTotals();
     }
 
-    function refreshTableUI() {
-        for (let i = 0; i < 14; i++) {
-            document.getElementById(`tPrev${i}`).innerText = flatsData[i].prevDue;
-            document.getElementById(`tRent${i}`).innerText = flatsData[i].rent;
-            document.getElementById(`tBill${i}`).innerText = flatsData[i].bill;
-            document.getElementById(`tOth${i}`).innerText = flatsData[i].others;
-            document.getElementById(`tTtl${i}`).innerText = flatsData[i].totalDue;
-            document.getElementById(`tPaid${i}`).innerText = flatsData[i].paid;
-            document.getElementById(`tBal${i}`).innerText = flatsData[i].balance;
-        }
-    }
-
-    function calculateTotals() {
-        let grossCollection = 0; let totalOutstanding = 0; const defaulters = [];
-        for (let i = 0; i < 14; i++) {
-            grossCollection += flatsData[i].paid;
-            if (flatsData[i].balance > 0) {
-                defaulters.push(`Flat ${i + 1}: ${flatsData[i].balance} BDT`);
-                totalOutstanding += flatsData[i].balance;
-            }
-        }
-        
-        const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers', 'expCharity'];
-        let expTotal = 0; expIds.forEach(id => expTotal += parseFloat(document.getElementById(id).value) || 0);
-
-        const netProfit = grossCollection - expTotal;
-        document.getElementById('lblNetCash').innerText = netProfit;
-        
-        const bankDep = parseFloat(document.getElementById('depBank').value) || 0;
-        const dpsDep = parseFloat(document.getElementById('depDps').value) || 0;
-        const cashDep = parseFloat(document.getElementById('depCashDeposit').value) || 0;
-        
-        const flat14Paid = flatsData[13].paid || 0;
-        const cashRetained = netProfit - cashDep - flat14Paid; 
-        const totalCashInHand = netProfit - bankDep - dpsDep - cashRetained;
-        
-        document.getElementById('depCash').value = cashRetained;
-        document.getElementById('depTotalCash').value = totalCashInHand;
-        
-        document.getElementById('lblTotalCollection').innerText = grossCollection;
-        document.getElementById('lblTotalExpense').innerText = expTotal;
-        
-        document.getElementById('dashCollection').innerText = grossCollection;
-        document.getElementById('dashExpenses').innerText = expTotal;
-        document.getElementById('dashProfit').innerText = netProfit;
-        
-        document.getElementById('dashBank').innerText = bankDep;
-        document.getElementById('dashDps').innerText = dpsDep;
-        document.getElementById('dashCashDeposit').innerText = cashDep; 
-        
-        document.getElementById('dashCashRetained').innerText = cashRetained;
-        document.getElementById('dashFlat14').innerText = flat14Paid;
-        document.getElementById('dashTotalCash').innerText = totalCashInHand;
-        
-        document.getElementById('defaulterList').innerHTML = defaulters.length > 0 ? defaulters.map(d => `<li>${d}</li>`).join('') : "<li>All clear</li>";
-        document.getElementById('dashTotalOutstanding').innerText = totalOutstanding;
+    function loadFlatIntoForm() {
+        const idx = parseInt(document.getElementById('flatSelector').value);
+        const d = flatsData[idx];
+        document.getElementById('qeRent').value = d.rent;
+        document.getElementById('qeBill').value = d.bill;
+        document.getElementById('qeOth').value = d.others;
+        document.getElementById('qePaid').value = d.paid;
+        document.getElementById('qeTtl').innerText = d.totalDue;
+        document.getElementById('qeBal').innerText = d.balance;
+        for(let i=0; i<14; i++) document.getElementById('row'+i).style.background = (i==idx)? '#e3f2fd':'none';
     }
 
     function loadData() {
-        const currentMonth = document.getElementById('reportMonth').value;
-        if (!currentMonth) return;
-        flatsData = Array(14).fill(null).map(() => ({ prevDue: 0, rent: 0, bill: 0, others: 0, paid: 0, totalDue: 0, balance: 0 }));
-
-        db.ref('rent_records').once('value').then(snapshot => {
-            globalRecords = snapshot.val() || {}; 
-            
-            if (globalRecords[currentMonth]) {
-                const data = globalRecords[currentMonth];
-                data.entries.forEach((entry, i) => {
-                    flatsData[i].prevDue = entry.prevDue; flatsData[i].rent = entry.rent; flatsData[i].bill = entry.bill;
-                    flatsData[i].others = entry.others; flatsData[i].paid = entry.paid;
-                    flatsData[i].totalDue = entry.prevDue + entry.rent + entry.bill + entry.others; flatsData[i].balance = entry.balance;
+        const month = document.getElementById('reportMonth').value;
+        if(!month) return;
+        flatsData = Array(14).fill(0).map(() => ({prevDue:0, rent:0, bill:0, others:0, paid:0, totalDue:0, balance:0}));
+        db.ref('rent_records').once('value').then(snap => {
+            globalRecords = snap.val() || {};
+            if(globalRecords[month]) {
+                const d = globalRecords[month];
+                d.entries.forEach((e, i) => {
+                    flatsData[i] = {...e, totalDue: e.prevDue + e.rent + e.bill + e.others};
+                    document.getElementById('tPrev'+i).innerText = e.prevDue;
+                    document.getElementById('tRent'+i).innerText = e.rent;
+                    document.getElementById('tBill'+i).innerText = e.bill;
+                    document.getElementById('tOth'+i).innerText = e.others;
+                    document.getElementById('tTtl'+i).innerText = flatsData[i].totalDue;
+                    document.getElementById('tPaid'+i).innerText = e.paid;
+                    document.getElementById('tBal'+i).innerText = e.balance;
                 });
-                document.getElementById('expGas').value = data.expenses.gas || 0; document.getElementById('expWasa').value = data.expenses.wasa || 0;
-                document.getElementById('expElectric').value = data.expenses.electric || 0; document.getElementById('expMosque').value = data.expenses.mosque || 0;
-                document.getElementById('expGuard').value = data.expenses.guard || 0; document.getElementById('expRepair').value = data.expenses.repair || 0;
-                document.getElementById('expPaint').value = data.expenses.paint || 0; document.getElementById('expSanitary').value = data.expenses.sanitary || 0;
-                document.getElementById('expCleaner').value = data.expenses.cleaner || 0; document.getElementById('expTax').value = data.expenses.tax || 0;
-                document.getElementById('expBkash').value = data.expenses.bkash || 0; document.getElementById('expCharity').value = data.expenses.charity || 0; document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
-                document.getElementById('depBank').value = data.deposits?.bank || 0; document.getElementById('depDps').value = data.deposits?.dps || 0;
-                document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; 
+                const ex = d.expenses || {};
+                const ids = ['expGas','expWasa','expElectric','expMosque','expGuard','expRepair','expPaint','expSanitary','expCleaner','expTax','expBkash','expCharityDirect','expCharityCaretaker','expOthers'];
+                const keys = ['gas','wasa','electric','mosque','guard','repair','paint','sanitary','cleaner','tax','bkash','charityDirect','charityCaretaker','othersExp'];
+                ids.forEach((id, i) => document.getElementById(id).value = ex[keys[i]] || 0);
+                document.getElementById('depBank').value = d.deposits?.bank || 0;
+                document.getElementById('depDps').value = d.deposits?.dps || 0;
+                document.getElementById('depCashDeposit').value = d.deposits?.cashDeposit || 0;
             } else {
                 const months = Object.keys(globalRecords).sort();
-                const prevMonthKey = months.filter(m => m < currentMonth).pop();
-                for (let i = 0; i < 14; i++) {
-                    let lastBal = 0; if (prevMonthKey && globalRecords[prevMonthKey]) lastBal = globalRecords[prevMonthKey].entries[i].balance;
-                    flatsData[i].prevDue = lastBal; flatsData[i].rent = fixedRents[i]; flatsData[i].bill = fixedBills[i];
-                    flatsData[i].totalDue = lastBal + fixedRents[i] + fixedBills[i]; flatsData[i].balance = flatsData[i].totalDue;
+                const prev = months.filter(m => m < month).pop();
+                for(let i=0; i<14; i++) {
+                    const prevBal = prev ? globalRecords[prev].entries[i].balance : 0;
+                    flatsData[i] = {prevDue: prevBal, rent: fixedRents[i], bill: fixedBills[i], others:0, paid:0, totalDue: prevBal + fixedRents[i] + fixedBills[i], balance: prevBal + fixedRents[i] + fixedBills[i]};
+                    document.getElementById('tPrev'+i).innerText = prevBal;
+                    document.getElementById('tRent'+i).innerText = fixedRents[i];
+                    document.getElementById('tBill'+i).innerText = fixedBills[i];
+                    document.getElementById('tOth'+i).innerText = 0;
+                    document.getElementById('tTtl'+i).innerText = flatsData[i].totalDue;
+                    document.getElementById('tPaid'+i).innerText = 0;
+                    document.getElementById('tBal'+i).innerText = flatsData[i].totalDue;
                 }
-                const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expCharity', 'expOthers'];
+                const expIds = ['expGas','expWasa','expElectric','expMosque','expGuard','expRepair','expPaint','expSanitary','expCleaner','expTax','expBkash','expCharityDirect','expCharityCaretaker','expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
-                document.getElementById('depBank').value = 0; document.getElementById('depDps').value = 0; document.getElementById('depCashDeposit').value = 0; 
+                ['depBank','depDps','depCashDeposit'].forEach(id => document.getElementById(id).value = 0);
             }
-            refreshTableUI(); loadFlatIntoForm(); calculateTotals();
-            generateAnnualAnalyticsAndChart(currentMonth);
+            loadFlatIntoForm(); calculateTotals(); updateChart(month);
         });
     }
 
     function submitToDatabase() {
         const month = document.getElementById('reportMonth').value;
-        if (!month) return alert("Please select a month first.");
-        const monthData = { entries: [], expenses: {}, deposits: {} };
-        for (let i = 0; i < 14; i++) {
-            monthData.entries.push({ flat: i + 1, prevDue: flatsData[i].prevDue, rent: flatsData[i].rent, bill: flatsData[i].bill, others: flatsData[i].others, paid: flatsData[i].paid, balance: flatsData[i].balance });
-        }
-        monthData.expenses = {
-            gas: parseFloat(document.getElementById('expGas').value) || 0, wasa: parseFloat(document.getElementById('expWasa').value) || 0,
-            electric: parseFloat(document.getElementById('expElectric').value) || 0, mosque: parseFloat(document.getElementById('expMosque').value) || 0,
-            guard: parseFloat(document.getElementById('expGuard').value) || 0, repair: parseFloat(document.getElementById('expRepair').value) || 0,
-            paint: parseFloat(document.getElementById('expPaint').value) || 0, sanitary: parseFloat(document.getElementById('expSanitary').value) || 0,
-            cleaner: parseFloat(document.getElementById('expCleaner').value) || 0, tax: parseFloat(document.getElementById('expTax').value) || 0,
-            bkash: parseFloat(document.getElementById('expBkash').value) || 0, othersExp: parseFloat(document.getElementById('expOthers').value) || 0,
-            charity: parseFloat(document.getElementById('expCharity').value) || 0
+        if(!month) return;
+        const data = {
+            entries: flatsData,
+            expenses: {
+                gas: parseFloat(document.getElementById('expGas').value), wasa: parseFloat(document.getElementById('expWasa').value),
+                electric: parseFloat(document.getElementById('expElectric').value), mosque: parseFloat(document.getElementById('expMosque').value),
+                guard: parseFloat(document.getElementById('expGuard').value), repair: parseFloat(document.getElementById('expRepair').value),
+                paint: parseFloat(document.getElementById('expPaint').value), sanitary: parseFloat(document.getElementById('expSanitary').value),
+                cleaner: parseFloat(document.getElementById('expCleaner').value), tax: parseFloat(document.getElementById('expTax').value),
+                bkash: parseFloat(document.getElementById('expBkash').value), charityDirect: parseFloat(document.getElementById('expCharityDirect').value),
+                charityCaretaker: parseFloat(document.getElementById('expCharityCaretaker').value), othersExp: parseFloat(document.getElementById('expOthers').value)
+            },
+            deposits: {
+                bank: parseFloat(document.getElementById('depBank').value), dps: parseFloat(document.getElementById('depDps').value),
+                cashDeposit: parseFloat(document.getElementById('depCashDeposit').value), caretakerRetained: parseFloat(document.getElementById('depCash').value),
+                totalCash: parseFloat(document.getElementById('depTotalCash').value)
+            }
         };
-        monthData.deposits = {
-            bank: parseFloat(document.getElementById('depBank').value) || 0, dps: parseFloat(document.getElementById('depDps').value) || 0,
-            cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0, 
-            cash: parseFloat(document.getElementById('depCash').value) || 0,
-            totalCash: parseFloat(document.getElementById('depTotalCash').value) || 0
-        };
-        db.ref('rent_records/' + month).set(monthData)
-          .then(() => { alert("Data successfully synchronised."); loadData(); })
-          .catch(err => alert("Sync failed: " + err));
+        db.ref('rent_records/' + month).set(data).then(() => { alert("Saved"); loadData(); });
     }
 
-    // --- UPDATED PRINT LOGIC ---
-    function printMonthlyRecord() {
-        const monthStr = document.getElementById('reportMonth').value;
-        if (!monthStr) return alert("Please select a month.");
-        
-        const dateObj = new Date(monthStr + "-01");
-        const displayMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
-        
-        let printHTML = `
-            <div class="print-header">
-                <h1>Zahida Kanon Rent Management</h1>
-                <p>Monthly Financial Statement - <strong>${displayMonth}</strong></p>
-                <p>Generated on: ${new Date().toLocaleDateString()}</p>
-            </div>
-            
-            <table class="print-table">
-                <thead>
-                    <tr><th>Flat</th><th>Prev Due</th><th>Rent</th><th>Bills</th><th>Others</th><th>Total Due</th><th>Paid</th><th>Balance</th></tr>
-                </thead>
-                <tbody>
-        `;
-        
-        for (let i = 0; i < 14; i++) {
-            printHTML += `<tr>
-                <td>Flat ${i+1}</td>
-                <td>${flatsData[i].prevDue}</td><td>${flatsData[i].rent}</td><td>${flatsData[i].bill}</td>
-                <td>${flatsData[i].others}</td><td>${flatsData[i].totalDue}</td><td>${flatsData[i].paid}</td>
-                <td>${flatsData[i].balance}</td>
-            </tr>`;
-        }
-        
-        printHTML += `</tbody></table>
-            <div class="print-grid">
-                <div class="print-box">
-                    <h3>Itemised Expenditures</h3>
-                    <div class="print-row"><span>Gas:</span><span>${document.getElementById('expGas').value}</span></div>
-                    <div class="print-row"><span>WASA:</span><span>${document.getElementById('expWasa').value}</span></div>
-                    <div class="print-row"><span>Electric:</span><span>${document.getElementById('expElectric').value}</span></div>
-                    <div class="print-row"><span>Mosque:</span><span>${document.getElementById('expMosque').value}</span></div>
-                    <div class="print-row"><span>Night Guard:</span><span>${document.getElementById('expGuard').value}</span></div>
-                    <div class="print-row"><span>Repair:</span><span>${document.getElementById('expRepair').value}</span></div>
-                    <div class="print-row"><span>Paint:</span><span>${document.getElementById('expPaint').value}</span></div>
-                    <div class="print-row"><span>Sanitary:</span><span>${document.getElementById('expSanitary').value}</span></div>
-                    <div class="print-row"><span>Cleaner:</span><span>${document.getElementById('expCleaner').value}</span></div>
-                    <div class="print-row"><span>Tax:</span><span>${document.getElementById('expTax').value}</span></div>
-                    <div class="print-row"><span>Bkash:</span><span>${document.getElementById('expBkash').value}</span></div>
-                    <div class="print-row"><span>Charity:</span><span>${document.getElementById('expCharity').value}</span></div>
-                    <div class="print-row"><span>Others:</span><span>${document.getElementById('expOthers').value}</span></div>
-                    <div class="print-row print-total"><span>Total Expenditure:</span><span>${document.getElementById('dashExpenses').innerText}</span></div>
-                </div>
-                
-                <div class="print-box">
-                    <h3>Financial Reconciliation</h3>
-                    <div class="print-row"><span>Gross Collection:</span><span>${document.getElementById('dashCollection').innerText}</span></div>
-                    <div class="print-row"><span>Total Expenditures:</span><span>- ${document.getElementById('dashExpenses').innerText}</span></div>
-                    <div class="print-row print-total" style="color:#198754;"><span>Net Profit:</span><span>${document.getElementById('dashProfit').innerText}</span></div>
-                    <br>
-                    <div class="print-row"><span>Bank Deposit:</span><span>${document.getElementById('dashBank').innerText}</span></div>
-                    <div class="print-row"><span>DPS Deposit:</span><span>${document.getElementById('dashDps').innerText}</span></div>
-                    <div class="print-row"><span>Cash Deposit:</span><span>${document.getElementById('dashCashDeposit').innerText}</span></div>
-                    <div class="print-row"><span>Flat 14 (Direct):</span><span>${document.getElementById('dashFlat14').innerText}</span></div>
-                    <div class="print-row"><span>Cash Retained (Caretaker):</span><span>${document.getElementById('dashCashRetained').innerText}</span></div>
-                    <div class="print-row print-total"><span>Total Cash in Hand:</span><span>${document.getElementById('dashTotalCash').innerText}</span></div>
-                </div>
-            </div>
-            
-            <div class="print-signatures">
-                <div class="print-sig-line">Prepared By (Caretaker)</div>
-                <div class="print-sig-line">Approved By (Owner)</div>
-            </div>
-        `;
-
-        document.getElementById('printSection').innerHTML = printHTML;
-        window.print();
-    }
-
-    function generateAnnualAnalyticsAndChart(selectedMonth) {
-        if (!globalRecords) return;
-        let year = parseInt(selectedMonth.split('-')[0]);
-        let month = parseInt(selectedMonth.split('-')[1]);
-        let startYYYY = month >= 7 ? year : year - 1;
-        let endYYYY = startYYYY + 1;
-        let fyIncome = 0, fyUtilities = 0, fyMaintenance = 0;
-        let chartLabels = []; let chartIncome = []; let chartExpense = [];
-
-        let sortedMonths = Object.keys(globalRecords).sort();
-        sortedMonths.forEach(mKey => {
-            let mYear = parseInt(mKey.split('-')[0]); let mMonth = parseInt(mKey.split('-')[1]);
-            let isFY = (mYear === startYYYY && mMonth >= 7) || (mYear === endYYYY && mMonth <= 6);
-            let rec = globalRecords[mKey]; let monthlyInc = 0;
-            rec.entries.forEach(e => monthlyInc += (e.paid || 0));
-            let exp = rec.expenses || {};
-            let monthlyUtil = (exp.gas||0) + (exp.wasa||0) + (exp.electric||0);
-            let monthlyMaint = (exp.mosque||0) + (exp.guard||0) + (exp.repair||0) + (exp.paint||0) + (exp.sanitary||0) + (exp.cleaner||0);
-            let monthlyOtherExp = (exp.tax||0) + (exp.bkash||0) + (exp.othersExp||0);
-            let totalExp = monthlyUtil + monthlyMaint + monthlyOtherExp;
-
-            if(isFY) { fyIncome += monthlyInc; fyUtilities += monthlyUtil; fyMaintenance += monthlyMaint; }
-            chartLabels.push(mKey); chartIncome.push(monthlyInc); chartExpense.push(totalExp);
+    function updateChart(selected) {
+        const sorted = Object.keys(globalRecords).sort();
+        const labels = sorted, income = [], expense = [];
+        sorted.forEach(m => {
+            let inc = 0, exp = 0;
+            globalRecords[m].entries.forEach(e => inc += e.paid);
+            Object.values(globalRecords[m].expenses).forEach(v => exp += v);
+            income.push(inc); expense.push(exp);
         });
-
-        document.getElementById('fyIncome').innerText = fyIncome; document.getElementById('fyUtilities').innerText = fyUtilities;
-        document.getElementById('fyMaintenance').innerText = fyMaintenance; document.getElementById('fyNet').innerText = fyIncome - (fyUtilities + fyMaintenance); 
-
         const ctx = document.getElementById('financeChart').getContext('2d');
         if(chartInstance) chartInstance.destroy();
         chartInstance = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: chartLabels,
-                datasets: [
-                    { label: 'Income (Collection)', data: chartIncome, backgroundColor: '#198754' },
-                    { label: 'Total Expenses', data: chartExpense, backgroundColor: '#dc3545' }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+            data: { labels, datasets: [{label:'Income', data:income, backgroundColor:'#198754'},{label:'Expense', data:expense, backgroundColor:'#dc3545'}] },
+            options: { responsive:true, maintainAspectRatio:false }
         });
     }
 
-    function downloadBackupCSV() {
-        if (!globalRecords) return alert("No data available to backup.");
-        let csvContent = "Month,Flat,PrevDue,Rent,Bills,Others,Paid,Balance,Gas,WASA,Electric,Mosque,Guard,Repair,Paint,Sanitary,Cleaner,Tax,Bkash,OthersExp,BankDep,DPS,CashDep,CaretakerRetained,TotalCashInHand\n";
-        let sortedMonths = Object.keys(globalRecords).sort();
-        sortedMonths.forEach(mKey => {
-            let data = globalRecords[mKey]; let ex = data.expenses || {}; let dp = data.deposits || {};
-            data.entries.forEach(e => {
-                let isFirstFlat = (e.flat === 1);
-                let row = [
-                    mKey, e.flat, e.prevDue, e.rent, e.bill, e.others, e.paid, e.balance,
-                    isFirstFlat ? ex.gas||0 : 0, isFirstFlat ? ex.wasa||0 : 0, isFirstFlat ? ex.electric||0 : 0,
-                    isFirstFlat ? ex.mosque||0 : 0, isFirstFlat ? ex.guard||0 : 0, isFirstFlat ? ex.repair||0 : 0,
-                    isFirstFlat ? ex.paint||0 : 0, isFirstFlat ? ex.sanitary||0 : 0, isFirstFlat ? ex.cleaner||0 : 0,
-                    isFirstFlat ? ex.tax||0 : 0, isFirstFlat ? ex.bkash||0 : 0, isFirstFlat ? ex.othersExp||0 : 0,
-                    isFirstFlat ? dp.bank||0 : 0, isFirstFlat ? dp.dps||0 : 0, isFirstFlat ? dp.cashDeposit||0 : 0, 
-                    isFirstFlat ? dp.cash||0 : 0, isFirstFlat ? dp.totalCash||0 : 0
-                ];
-                csvContent += row.join(",") + "\n";
-            });
+    function printMonthlyRecord() {
+        const month = document.getElementById('reportMonth').value;
+        let html = `<div style="text-align:center; border-bottom:2px solid #000; margin-bottom:20px;"><h1>Zahida Kanon Rent Statement</h1><h3>Month: ${month}</h3></div>`;
+        html += `<table class="print-table"><thead><tr><th>Flat</th><th>Prev Due</th><th>Rent</th><th>Bills</th><th>Total</th><th>Paid</th><th>Bal</th></tr></thead><tbody>`;
+        flatsData.forEach((f, i) => {
+            html += `<tr><td>Flat ${i+1}</td><td>${f.prevDue}</td><td>${f.rent}</td><td>${f.bill}</td><td>${f.totalDue}</td><td>${f.paid}</td><td>${f.balance}</td></tr>`;
         });
-        const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
-        const link = document.createElement("a"); link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Rent_Backup_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link); link.click();
+        html += `</tbody></table><div class="print-grid">`;
+        html += `<div class="print-box"><h3>Expenses</h3>`;
+        const keys = ['Gas','Wasa','Electric','Mosque','Guard','Repair','Paint','Sanitary','Cleaner','Tax','Bkash','Direct Charity','Caretaker Charity','Misc'];
+        const ids = ['expGas','expWasa','expElectric','expMosque','expGuard','expRepair','expPaint','expSanitary','expCleaner','expTax','expBkash','expCharityDirect','expCharityCaretaker','expOthers'];
+        ids.forEach((id, i) => html += `<div style="display:flex; justify-content:space-between;"><span>${keys[i]}:</span><span>${document.getElementById(id).value}</span></div>`);
+        html += `<div style="border-top:1px solid #000; font-weight:bold; display:flex; justify-content:space-between;"><span>Total:</span><span>${document.getElementById('lblTotalExpense').innerText}</span></div></div>`;
+        html += `<div class="print-box"><h3>Reconciliation</h3>`;
+        html += `<div style="display:flex; justify-content:space-between;"><span>Bank Deposit:</span><span>${document.getElementById('depBank').value}</span></div>`;
+        html += `<div style="display:flex; justify-content:space-between;"><span>Caretaker Retained:</span><span>${document.getElementById('depCash').value}</span></div>`;
+        html += `<div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Total Cash in Hand:</span><span>${document.getElementById('depTotalCash').value}</span></div></div></div>`;
+        html += `<div class="print-signatures"><div class="print-sig-line">Prepared By (Caretaker)</div><div class="print-sig-line">Approved By (Owner)</div></div>`;
+        document.getElementById('printSection').innerHTML = html;
+        window.print();
     }
 
-    function switchTab(tabId) {
-        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+    function switchTab(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
         event.currentTarget.classList.add('active');
     }
 
     window.onload = () => {
-        initTableHTML();
-        const now = new Date(); document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        initTable();
+        const now = new Date();
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
         loadData();
     };
 </script>
