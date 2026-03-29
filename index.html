@@ -133,6 +133,7 @@
                 <div class="expense-item">Cleaner: <input type="number" id="expCleaner" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Tax: <input type="number" id="expTax" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Bkash: <input type="number" id="expBkash" value="0" oninput="calculateTotals()"></div>
+                <div class="expense-item">Charity: <input type="number" id="expCharity" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Others: <input type="number" id="expOthers" value="0" oninput="calculateTotals()"></div>
             </div>
             <div class="summary-label" style="color: #dc3545;">Total Expense: <span id="lblTotalExpense">0</span> BDT</div>
@@ -286,7 +287,7 @@
             }
         }
         
-        const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
+        const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers', 'expCharity'];
         let expTotal = 0; expIds.forEach(id => expTotal += parseFloat(document.getElementById(id).value) || 0);
 
         const netProfit = grossCollection - expTotal;
@@ -342,7 +343,7 @@
                 document.getElementById('expGuard').value = data.expenses.guard || 0; document.getElementById('expRepair').value = data.expenses.repair || 0;
                 document.getElementById('expPaint').value = data.expenses.paint || 0; document.getElementById('expSanitary').value = data.expenses.sanitary || 0;
                 document.getElementById('expCleaner').value = data.expenses.cleaner || 0; document.getElementById('expTax').value = data.expenses.tax || 0;
-                document.getElementById('expBkash').value = data.expenses.bkash || 0; document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
+                document.getElementById('expBkash').value = data.expenses.bkash || 0; document.getElementById('expCharity').value = data.expenses.charity || 0; document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
                 document.getElementById('depBank').value = data.deposits?.bank || 0; document.getElementById('depDps').value = data.deposits?.dps || 0;
                 document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; 
             } else {
@@ -353,7 +354,7 @@
                     flatsData[i].prevDue = lastBal; flatsData[i].rent = fixedRents[i]; flatsData[i].bill = fixedBills[i];
                     flatsData[i].totalDue = lastBal + fixedRents[i] + fixedBills[i]; flatsData[i].balance = flatsData[i].totalDue;
                 }
-                const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
+                const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expCharity', 'expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
                 document.getElementById('depBank').value = 0; document.getElementById('depDps').value = 0; document.getElementById('depCashDeposit').value = 0; 
             }
@@ -375,7 +376,8 @@
             guard: parseFloat(document.getElementById('expGuard').value) || 0, repair: parseFloat(document.getElementById('expRepair').value) || 0,
             paint: parseFloat(document.getElementById('expPaint').value) || 0, sanitary: parseFloat(document.getElementById('expSanitary').value) || 0,
             cleaner: parseFloat(document.getElementById('expCleaner').value) || 0, tax: parseFloat(document.getElementById('expTax').value) || 0,
-            bkash: parseFloat(document.getElementById('expBkash').value) || 0, othersExp: parseFloat(document.getElementById('expOthers').value) || 0
+            bkash: parseFloat(document.getElementById('expBkash').value) || 0, othersExp: parseFloat(document.getElementById('expOthers').value) || 0,
+            charity: parseFloat(document.getElementById('expCharity').value) || 0
         };
         monthData.deposits = {
             bank: parseFloat(document.getElementById('depBank').value) || 0, dps: parseFloat(document.getElementById('depDps').value) || 0,
@@ -434,6 +436,7 @@
                     <div class="print-row"><span>Cleaner:</span><span>${document.getElementById('expCleaner').value}</span></div>
                     <div class="print-row"><span>Tax:</span><span>${document.getElementById('expTax').value}</span></div>
                     <div class="print-row"><span>Bkash:</span><span>${document.getElementById('expBkash').value}</span></div>
+                    <div class="print-row"><span>Charity:</span><span>${document.getElementById('expCharity').value}</span></div>
                     <div class="print-row"><span>Others:</span><span>${document.getElementById('expOthers').value}</span></div>
                     <div class="print-row print-total"><span>Total Expenditure:</span><span>${document.getElementById('dashExpenses').innerText}</span></div>
                 </div>
