@@ -145,7 +145,7 @@
                 <div class="expense-item">Bank Deposit: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">DPS Deposit: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Cash Deposit: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Cash Retained (Caretaker): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
+                <div class="expense-item">Cash (Billal): <input type="number" id="depCash" value="0" readonly style="background: #e9ecef; border: 1px solid #aaa; color: #000; font-weight: bold;"></div>
                 <div class="expense-item">Total Cash In Hand: <input type="number" id="depTotalCash" value="0" readonly style="background: #d4edda; border: 1px solid #28a745; color: #155724; font-weight: bold;"></div>
             </div>
         </div>
@@ -168,7 +168,7 @@
                 <p>Bank Deposit: <strong id="dashBank">0</strong> BDT</p>
                 <p>DPS Deposit: <strong id="dashDps">0</strong> BDT</p>
                 <p>Cash Deposit: <strong id="dashCashDeposit">0</strong> BDT</p>
-                <p>Cash Retained (Caretaker): <strong id="dashCashRetained">0</strong> BDT</p>
+                <p>Cash (Billal): <strong id="dashCashRetained">0</strong> BDT</p>
                 <p>Flat 14 Collection (Direct): <strong id="dashFlat14">0</strong> BDT</p>
                 <hr>
                 <p style="font-size: 16px; color: #856404; font-weight: bold;">Total Cash in Hand: <strong id="dashTotalCash">0</strong> BDT</p>
@@ -448,14 +448,14 @@
                     <div class="print-row"><span>DPS Deposit:</span><span>${document.getElementById('dashDps').innerText}</span></div>
                     <div class="print-row"><span>Cash Deposit:</span><span>${document.getElementById('dashCashDeposit').innerText}</span></div>
                     <div class="print-row"><span>Flat 14 (Direct):</span><span>${document.getElementById('dashFlat14').innerText}</span></div>
-                    <div class="print-row"><span>Cash Retained (Caretaker):</span><span>${document.getElementById('dashCashRetained').innerText}</span></div>
+                    <div class="print-row"><span>Cash (Billal):</span><span>${document.getElementById('dashCashRetained').innerText}</span></div>
                     <div class="print-row print-total"><span>Total Cash in Hand:</span><span>${document.getElementById('dashTotalCash').innerText}</span></div>
                 </div>
             </div>
             
             <div class="print-signatures">
-                <div class="print-sig-line">Prepared By (Caretaker)</div>
-                <div class="print-sig-line">Approved By (Owner)</div>
+                <div class="print-sig-line">Prepared By Billal</div>
+                <div class="print-sig-line">Approved</div>
             </div>
         `;
 
