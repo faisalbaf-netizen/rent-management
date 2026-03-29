@@ -104,7 +104,7 @@
                 <div class="expense-item">Tax: <input type="number" id="expTax" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Bkash: <input type="number" id="expBkash" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Direct Charity: <input type="number" id="expCharityDirect" value="0" oninput="calculateTotals()" title="Deducted from Flat 14 / Owner"></div>
-                <div class="expense-item">Caretaker Charity: <input type="number" id="expCharityCaretaker" value="0" oninput="calculateTotals()" title="Deducted from Caretaker Cash"></div>
+                <div class="expense-item">Billal Charity: <input type="number" id="expCharityCaretaker" value="0" oninput="calculateTotals()" title="Deducted from Caretaker Cash"></div>
                 <div class="expense-item">Misc Others: <input type="number" id="expOthers" value="0" oninput="calculateTotals()"></div>
             </div>
             <div class="summary-label" style="color:red;">Total Expense: <span id="lblTotalExpense">0</span></div>
@@ -116,7 +116,7 @@
                 <div class="expense-item">Bank: <input type="number" id="depBank" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">DPS: <input type="number" id="depDps" value="0" oninput="calculateTotals()"></div>
                 <div class="expense-item">Cash Dep: <input type="number" id="depCashDeposit" value="0" oninput="calculateTotals()"></div>
-                <div class="expense-item">Caretaker Retained: <input type="number" id="depCash" readonly style="background:#eee;"></div>
+                <div class="expense-item">Billal Retained: <input type="number" id="depCash" readonly style="background:#eee;"></div>
                 <div class="expense-item">Total Cash in Hand: <input type="number" id="depTotalCash" readonly style="background:#d4edda; font-weight:bold;"></div>
             </div>
         </div>
@@ -133,7 +133,7 @@
             </div>
             <div class="dash-card">
                 <h3>Cash Breakdown</h3>
-                <p>Caretaker Retained: <strong id="dashCashRetained">0</strong></p>
+                <p>Billal Retained: <strong id="dashCashRetained">0</strong></p>
                 <p>Flat 14 (Direct): <strong id="dashFlat14">0</strong></p>
                 <p>Total Cash in Hand: <strong id="dashTotalCash">0</strong></p>
             </div>
@@ -200,8 +200,8 @@
         const charityCaretaker = parseFloat(document.getElementById('expCharityCaretaker').value) || 0;
 
         // NEW LOGIC: Caretaker Retained excludes Flat 14 and Caretaker's Charity Spending
-        const caretakerRetained = netProfit - bank - dps - cashDep - flat14Paid - charityCaretaker;
-        const totalCashInHand = netProfit - bank - dps - cashDep;
+        const caretakerRetained = netProfit - cashDep - flat14Paid + expCharityDirect;
+        const totalCashInHand = netProfit - bank - dps - caretakerRetained;
 
         document.getElementById('depCash').value = caretakerRetained;
         document.getElementById('depTotalCash').value = totalCashInHand;
