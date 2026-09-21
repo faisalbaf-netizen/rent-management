@@ -322,7 +322,7 @@
         document.getElementById('dashTotalOutstanding').innerText = totalOutstanding;
     }
 
-    function loadData() {
+        function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
         flatsData = Array(14).fill(null).map(() => ({ prevDue: 0, rent: 0, bill: 0, others: 0, paid: 0, totalDue: 0, balance: 0 }));
@@ -333,23 +333,30 @@
             if (globalRecords[currentMonth]) {
                 const data = globalRecords[currentMonth];
                 data.entries.forEach((entry, i) => {
-                    flatsData[i].prevDue = entry.prevDue; flatsData[i].rent = entry.rent; flatsData[i].bill = entry.bill;
-                    flatsData[i].others = entry.others; flatsData[i].paid = entry.paid;
-                    flatsData[i].totalDue = entry.prevDue + entry.rent + entry.bill + entry.others; flatsData[i].balance = entry.balance;
+                    flatsData[i].prevDue = entry.prevDue ?? 0; 
+                    flatsData[i].rent = entry.rent ?? 0; 
+                    flatsData[i].bill = entry.bill ?? 0;
+                    flatsData[i].others = entry.others ?? 0; 
+                    flatsData[i].paid = entry.paid ?? 0;
+                    flatsData[i].totalDue = flatsData[i].prevDue + flatsData[i].rent + flatsData[i].bill + flatsData[i].others; 
+                    flatsData[i].balance = entry.balance ?? 0; // FIX: Defaults to 0 if balance is missing
                 });
-                document.getElementById('expGas').value = data.expenses.gas || 0; document.getElementById('expWasa').value = data.expenses.wasa || 0;
-                document.getElementById('expElectric').value = data.expenses.electric || 0; document.getElementById('expMosque').value = data.expenses.mosque || 0;
-                document.getElementById('expGuard').value = data.expenses.guard || 0; document.getElementById('expRepair').value = data.expenses.repair || 0;
-                document.getElementById('expPaint').value = data.expenses.paint || 0; document.getElementById('expSanitary').value = data.expenses.sanitary || 0;
-                document.getElementById('expCleaner').value = data.expenses.cleaner || 0; document.getElementById('expTax').value = data.expenses.tax || 0;
-                document.getElementById('expBkash').value = data.expenses.bkash || 0; document.getElementById('expOthers').value = data.expenses.othersExp || 0; 
+                document.getElementById('expGas').value = data.expenses?.gas || 0; document.getElementById('expWasa').value = data.expenses?.wasa || 0;
+                document.getElementById('expElectric').value = data.expenses?.electric || 0; document.getElementById('expMosque').value = data.expenses?.mosque || 0;
+                document.getElementById('expGuard').value = data.expenses?.guard || 0; document.getElementById('expRepair').value = data.expenses?.repair || 0;
+                document.getElementById('expPaint').value = data.expenses?.paint || 0; document.getElementById('expSanitary').value = data.expenses?.sanitary || 0;
+                document.getElementById('expCleaner').value = data.expenses?.cleaner || 0; document.getElementById('expTax').value = data.expenses?.tax || 0;
+                document.getElementById('expBkash').value = data.expenses?.bkash || 0; document.getElementById('expOthers').value = data.expenses?.othersExp || 0; 
                 document.getElementById('depBank').value = data.deposits?.bank || 0; document.getElementById('depDps').value = data.deposits?.dps || 0;
                 document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; 
             } else {
                 const months = Object.keys(globalRecords).sort();
                 const prevMonthKey = months.filter(m => m < currentMonth).pop();
                 for (let i = 0; i < 14; i++) {
-                    let lastBal = 0; if (prevMonthKey && globalRecords[prevMonthKey]) lastBal = globalRecords[prevMonthKey].entries[i].balance;
+                    let lastBal = 0; 
+                    if (prevMonthKey && globalRecords[prevMonthKey] && globalRecords[prevMonthKey].entries?.[i]) {
+                        lastBal = globalRecords[prevMonthKey].entries[i].balance ?? 0; // FIX: Prevents crash if previous month balance is missing
+                    }
                     flatsData[i].prevDue = lastBal; flatsData[i].rent = fixedRents[i]; flatsData[i].bill = fixedBills[i];
                     flatsData[i].totalDue = lastBal + fixedRents[i] + fixedBills[i]; flatsData[i].balance = flatsData[i].totalDue;
                 }
