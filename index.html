@@ -49,7 +49,7 @@
 
         /* --- UPDATED PRINT STYLES FOR A4 COMPRESSION --- */
         @media print {
-            @page { size: A4; margin: 10mm; } /* Forces A4 geometry with tight 1cm margins */
+            @page { size: A4; margin: 10mm; } 
             body { background: #fff; margin: 0; padding: 0; font-family: 'Times New Roman', Times, serif; }
             .wrapper { display: none !important; } 
             #printSection { display: block !important; width: 100%; }
@@ -59,17 +59,16 @@
             .print-header p { margin: 3px 0 0; font-size: 12px; }
             
             .print-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
-            .print-table th, .print-table td { border: 1px solid #000; padding: 4px; text-align: center; } /* Compressed padding */
+            .print-table th, .print-table td { border: 1px solid #000; padding: 4px; text-align: center; } 
             .print-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
             .print-grid { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
             .print-box { border: 1px solid #000; padding: 8px; width: 48%; }
             .print-box h3 { margin-top: 0; font-size: 13px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px; }
             
-            .print-row { display: flex; justify-content: space-between; margin-bottom: 2px; } /* Compressed row spacing */
+            .print-row { display: flex; justify-content: space-between; margin-bottom: 2px; } 
             .print-total { font-weight: bold; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px; }
             
-            /* Signature block pulled up tightly to prevent page breaks */
             .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; }
             .print-sig-line { border-top: 1px solid #000; width: 220px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 12px; }
         }
@@ -322,7 +321,7 @@
         document.getElementById('dashTotalOutstanding').innerText = totalOutstanding;
     }
 
-        function loadData() {
+    function loadData() {
         const currentMonth = document.getElementById('reportMonth').value;
         if (!currentMonth) return;
         flatsData = Array(14).fill(null).map(() => ({ prevDue: 0, rent: 0, bill: 0, others: 0, paid: 0, totalDue: 0, balance: 0 }));
@@ -330,41 +329,69 @@
         db.ref('rent_records').once('value').then(snapshot => {
             globalRecords = snapshot.val() || {}; 
             
+            // Identify chronological prior month to dynamically calculate ending balances
+            const months = Object.keys(globalRecords).sort();
+            const prevMonthKey = months.filter(m => m < currentMonth).pop();
+
             if (globalRecords[currentMonth]) {
                 const data = globalRecords[currentMonth];
                 data.entries.forEach((entry, i) => {
-                    flatsData[i].prevDue = entry.prevDue ?? 0; 
-                    flatsData[i].rent = entry.rent ?? 0; 
-                    flatsData[i].bill = entry.bill ?? 0;
+                    // DYNAMIC CARRY-FORWARD: Always derive Prev Due from prior month's actual ending balance
+                    let dynamicPrevDue = 0;
+                    if (prevMonthKey && globalRecords[prevMonthKey] && globalRecords[prevMonthKey].entries?.[i]) {
+                        const prevEntry = globalRecords[prevMonthKey].entries[i];
+                        dynamicPrevDue = (prevEntry.prevDue || 0) + (prevEntry.rent || 0) + (prevEntry.bill || 0) + (prevEntry.others || 0) - (prevEntry.paid || 0);
+                    }
+
+                    flatsData[i].prevDue = dynamicPrevDue;
+                    flatsData[i].rent = entry.rent ?? fixedRents[i]; 
+                    flatsData[i].bill = entry.bill ?? fixedBills[i];
                     flatsData[i].others = entry.others ?? 0; 
                     flatsData[i].paid = entry.paid ?? 0;
                     flatsData[i].totalDue = flatsData[i].prevDue + flatsData[i].rent + flatsData[i].bill + flatsData[i].others; 
-                    flatsData[i].balance = entry.balance ?? 0; // FIX: Defaults to 0 if balance is missing
+                    flatsData[i].balance = flatsData[i].totalDue - flatsData[i].paid;
                 });
-                document.getElementById('expGas').value = data.expenses?.gas || 0; document.getElementById('expWasa').value = data.expenses?.wasa || 0;
-                document.getElementById('expElectric').value = data.expenses?.electric || 0; document.getElementById('expMosque').value = data.expenses?.mosque || 0;
-                document.getElementById('expGuard').value = data.expenses?.guard || 0; document.getElementById('expRepair').value = data.expenses?.repair || 0;
-                document.getElementById('expPaint').value = data.expenses?.paint || 0; document.getElementById('expSanitary').value = data.expenses?.sanitary || 0;
-                document.getElementById('expCleaner').value = data.expenses?.cleaner || 0; document.getElementById('expTax').value = data.expenses?.tax || 0;
-                document.getElementById('expBkash').value = data.expenses?.bkash || 0; document.getElementById('expOthers').value = data.expenses?.othersExp || 0; 
-                document.getElementById('depBank').value = data.deposits?.bank || 0; document.getElementById('depDps').value = data.deposits?.dps || 0;
+
+                document.getElementById('expGas').value = data.expenses?.gas || 0; 
+                document.getElementById('expWasa').value = data.expenses?.wasa || 0;
+                document.getElementById('expElectric').value = data.expenses?.electric || 0; 
+                document.getElementById('expMosque').value = data.expenses?.mosque || 0;
+                document.getElementById('expGuard').value = data.expenses?.guard || 0; 
+                document.getElementById('expRepair').value = data.expenses?.repair || 0;
+                document.getElementById('expPaint').value = data.expenses?.paint || 0; 
+                document.getElementById('expSanitary').value = data.expenses?.sanitary || 0;
+                document.getElementById('expCleaner').value = data.expenses?.cleaner || 0; 
+                document.getElementById('expTax').value = data.expenses?.tax || 0;
+                document.getElementById('expBkash').value = data.expenses?.bkash || 0; 
+                document.getElementById('expOthers').value = data.expenses?.othersExp || 0; 
+                
+                document.getElementById('depBank').value = data.deposits?.bank || 0; 
+                document.getElementById('depDps').value = data.deposits?.dps || 0;
                 document.getElementById('depCashDeposit').value = data.deposits?.cashDeposit || 0; 
             } else {
-                const months = Object.keys(globalRecords).sort();
-                const prevMonthKey = months.filter(m => m < currentMonth).pop();
                 for (let i = 0; i < 14; i++) {
                     let lastBal = 0; 
                     if (prevMonthKey && globalRecords[prevMonthKey] && globalRecords[prevMonthKey].entries?.[i]) {
-                        lastBal = globalRecords[prevMonthKey].entries[i].balance ?? 0; // FIX: Prevents crash if previous month balance is missing
+                        const prevEntry = globalRecords[prevMonthKey].entries[i];
+                        lastBal = (prevEntry.prevDue || 0) + (prevEntry.rent || 0) + (prevEntry.bill || 0) + (prevEntry.others || 0) - (prevEntry.paid || 0);
                     }
-                    flatsData[i].prevDue = lastBal; flatsData[i].rent = fixedRents[i]; flatsData[i].bill = fixedBills[i];
-                    flatsData[i].totalDue = lastBal + fixedRents[i] + fixedBills[i]; flatsData[i].balance = flatsData[i].totalDue;
+                    flatsData[i].prevDue = lastBal; 
+                    flatsData[i].rent = fixedRents[i]; 
+                    flatsData[i].bill = fixedBills[i];
+                    flatsData[i].others = 0;
+                    flatsData[i].paid = 0;
+                    flatsData[i].totalDue = lastBal + fixedRents[i] + fixedBills[i]; 
+                    flatsData[i].balance = flatsData[i].totalDue;
                 }
                 const expIds = ['expGas', 'expWasa', 'expElectric', 'expMosque', 'expGuard', 'expRepair', 'expPaint', 'expSanitary', 'expCleaner', 'expTax', 'expBkash', 'expOthers'];
                 expIds.forEach(id => document.getElementById(id).value = 0);
-                document.getElementById('depBank').value = 0; document.getElementById('depDps').value = 0; document.getElementById('depCashDeposit').value = 0; 
+                document.getElementById('depBank').value = 0; 
+                document.getElementById('depDps').value = 0; 
+                document.getElementById('depCashDeposit').value = 0; 
             }
-            refreshTableUI(); loadFlatIntoForm(); calculateTotals();
+            refreshTableUI(); 
+            loadFlatIntoForm(); 
+            calculateTotals();
             generateAnnualAnalyticsAndChart(currentMonth);
         });
     }
@@ -372,20 +399,38 @@
     function submitToDatabase() {
         const month = document.getElementById('reportMonth').value;
         if (!month) return alert("Please select a month first.");
+
+        saveFormToFlat();
+
         const monthData = { entries: [], expenses: {}, deposits: {} };
         for (let i = 0; i < 14; i++) {
-            monthData.entries.push({ flat: i + 1, prevDue: flatsData[i].prevDue, rent: flatsData[i].rent, bill: flatsData[i].bill, others: flatsData[i].others, paid: flatsData[i].paid, balance: flatsData[i].balance });
+            monthData.entries.push({ 
+                flat: i + 1, 
+                prevDue: flatsData[i].prevDue, 
+                rent: flatsData[i].rent, 
+                bill: flatsData[i].bill, 
+                others: flatsData[i].others, 
+                paid: flatsData[i].paid, 
+                balance: flatsData[i].balance 
+            });
         }
         monthData.expenses = {
-            gas: parseFloat(document.getElementById('expGas').value) || 0, wasa: parseFloat(document.getElementById('expWasa').value) || 0,
-            electric: parseFloat(document.getElementById('expElectric').value) || 0, mosque: parseFloat(document.getElementById('expMosque').value) || 0,
-            guard: parseFloat(document.getElementById('expGuard').value) || 0, repair: parseFloat(document.getElementById('expRepair').value) || 0,
-            paint: parseFloat(document.getElementById('expPaint').value) || 0, sanitary: parseFloat(document.getElementById('expSanitary').value) || 0,
-            cleaner: parseFloat(document.getElementById('expCleaner').value) || 0, tax: parseFloat(document.getElementById('expTax').value) || 0,
-            bkash: parseFloat(document.getElementById('expBkash').value) || 0, othersExp: parseFloat(document.getElementById('expOthers').value) || 0
+            gas: parseFloat(document.getElementById('expGas').value) || 0, 
+            wasa: parseFloat(document.getElementById('expWasa').value) || 0,
+            electric: parseFloat(document.getElementById('expElectric').value) || 0, 
+            mosque: parseFloat(document.getElementById('expMosque').value) || 0,
+            guard: parseFloat(document.getElementById('expGuard').value) || 0, 
+            repair: parseFloat(document.getElementById('expRepair').value) || 0,
+            paint: parseFloat(document.getElementById('expPaint').value) || 0, 
+            sanitary: parseFloat(document.getElementById('expSanitary').value) || 0,
+            cleaner: parseFloat(document.getElementById('expCleaner').value) || 0, 
+            tax: parseFloat(document.getElementById('expTax').value) || 0,
+            bkash: parseFloat(document.getElementById('expBkash').value) || 0, 
+            othersExp: parseFloat(document.getElementById('expOthers').value) || 0
         };
         monthData.deposits = {
-            bank: parseFloat(document.getElementById('depBank').value) || 0, dps: parseFloat(document.getElementById('depDps').value) || 0,
+            bank: parseFloat(document.getElementById('depBank').value) || 0, 
+            dps: parseFloat(document.getElementById('depDps').value) || 0,
             cashDeposit: parseFloat(document.getElementById('depCashDeposit').value) || 0, 
             cash: parseFloat(document.getElementById('depCash').value) || 0,
             totalCash: parseFloat(document.getElementById('depTotalCash').value) || 0
@@ -395,7 +440,6 @@
           .catch(err => alert("Sync failed: " + err));
     }
 
-    // --- UPDATED PRINT LOGIC ---
     function printMonthlyRecord() {
         const monthStr = document.getElementById('reportMonth').value;
         if (!monthStr) return alert("Please select a month.");
@@ -484,8 +528,10 @@
             let mYear = parseInt(mKey.split('-')[0]); let mMonth = parseInt(mKey.split('-')[1]);
             let isFY = (mYear === startYYYY && mMonth >= 7) || (mYear === endYYYY && mMonth <= 6);
             let rec = globalRecords[mKey]; let monthlyInc = 0;
-            rec.entries.forEach(e => monthlyInc += (e.paid || 0));
-            let exp = rec.expenses || {};
+            if (rec && rec.entries) {
+                rec.entries.forEach(e => monthlyInc += (e.paid || 0));
+            }
+            let exp = rec ? (rec.expenses || {}) : {};
             let monthlyUtil = (exp.gas||0) + (exp.wasa||0) + (exp.electric||0);
             let monthlyMaint = (exp.mosque||0) + (exp.guard||0) + (exp.repair||0) + (exp.paint||0) + (exp.sanitary||0) + (exp.cleaner||0);
             let monthlyOtherExp = (exp.tax||0) + (exp.bkash||0) + (exp.othersExp||0);
@@ -495,8 +541,10 @@
             chartLabels.push(mKey); chartIncome.push(monthlyInc); chartExpense.push(totalExp);
         });
 
-        document.getElementById('fyIncome').innerText = fyIncome; document.getElementById('fyUtilities').innerText = fyUtilities;
-        document.getElementById('fyMaintenance').innerText = fyMaintenance; document.getElementById('fyNet').innerText = fyIncome - (fyUtilities + fyMaintenance); 
+        document.getElementById('fyIncome').innerText = fyIncome; 
+        document.getElementById('fyUtilities').innerText = fyUtilities;
+        document.getElementById('fyMaintenance').innerText = fyMaintenance; 
+        document.getElementById('fyNet').innerText = fyIncome - (fyUtilities + fyMaintenance); 
 
         const ctx = document.getElementById('financeChart').getContext('2d');
         if(chartInstance) chartInstance.destroy();
@@ -518,20 +566,23 @@
         let csvContent = "Month,Flat,PrevDue,Rent,Bills,Others,Paid,Balance,Gas,WASA,Electric,Mosque,Guard,Repair,Paint,Sanitary,Cleaner,Tax,Bkash,OthersExp,BankDep,DPS,CashDep,CaretakerRetained,TotalCashInHand\n";
         let sortedMonths = Object.keys(globalRecords).sort();
         sortedMonths.forEach(mKey => {
-            let data = globalRecords[mKey]; let ex = data.expenses || {}; let dp = data.deposits || {};
-            data.entries.forEach(e => {
-                let isFirstFlat = (e.flat === 1);
-                let row = [
-                    mKey, e.flat, e.prevDue, e.rent, e.bill, e.others, e.paid, e.balance,
-                    isFirstFlat ? ex.gas||0 : 0, isFirstFlat ? ex.wasa||0 : 0, isFirstFlat ? ex.electric||0 : 0,
-                    isFirstFlat ? ex.mosque||0 : 0, isFirstFlat ? ex.guard||0 : 0, isFirstFlat ? ex.repair||0 : 0,
-                    isFirstFlat ? ex.paint||0 : 0, isFirstFlat ? ex.sanitary||0 : 0, isFirstFlat ? ex.cleaner||0 : 0,
-                    isFirstFlat ? ex.tax||0 : 0, isFirstFlat ? ex.bkash||0 : 0, isFirstFlat ? ex.othersExp||0 : 0,
-                    isFirstFlat ? dp.bank||0 : 0, isFirstFlat ? dp.dps||0 : 0, isFirstFlat ? dp.cashDeposit||0 : 0, 
-                    isFirstFlat ? dp.cash||0 : 0, isFirstFlat ? dp.totalCash||0 : 0
-                ];
-                csvContent += row.join(",") + "\n";
-            });
+            let data = globalRecords[mKey]; 
+            if (data && data.entries) {
+                let ex = data.expenses || {}; let dp = data.deposits || {};
+                data.entries.forEach(e => {
+                    let isFirstFlat = (e.flat === 1);
+                    let row = [
+                        mKey, e.flat, e.prevDue||0, e.rent||0, e.bill||0, e.others||0, e.paid||0, e.balance||0,
+                        isFirstFlat ? ex.gas||0 : 0, isFirstFlat ? ex.wasa||0 : 0, isFirstFlat ? ex.electric||0 : 0,
+                        isFirstFlat ? ex.mosque||0 : 0, isFirstFlat ? ex.guard||0 : 0, isFirstFlat ? ex.repair||0 : 0,
+                        isFirstFlat ? ex.paint||0 : 0, isFirstFlat ? ex.sanitary||0 : 0, isFirstFlat ? ex.cleaner||0 : 0,
+                        isFirstFlat ? ex.tax||0 : 0, isFirstFlat ? ex.bkash||0 : 0, isFirstFlat ? ex.othersExp||0 : 0,
+                        isFirstFlat ? dp.bank||0 : 0, isFirstFlat ? dp.dps||0 : 0, isFirstFlat ? dp.cashDeposit||0 : 0, 
+                        isFirstFlat ? dp.cash||0 : 0, isFirstFlat ? dp.totalCash||0 : 0
+                    ];
+                    csvContent += row.join(",") + "\n";
+                });
+            }
         });
         const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
         const link = document.createElement("a"); link.setAttribute("href", encodedUri);
@@ -548,7 +599,8 @@
 
     window.onload = () => {
         initTableHTML();
-        const now = new Date(); document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const now = new Date(); 
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
         loadData();
     };
 </script>
