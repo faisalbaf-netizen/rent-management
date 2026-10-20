@@ -73,33 +73,33 @@
             .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; font-family: 'Times New Roman', serif; }
             .print-sig-line { border-top: 1px solid #000; width: 220px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 12px; }
 
-            /* TELLER / CUT-OUT RECEIPT GRID STYLES */
-            .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; width: 100%; }
+                        /* TELLER / CUT-OUT RECEIPT GRID STYLES (COMPRESSED A4 FIT) */
+            .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; width: 100%; }
             .receipt-card { 
                 border: 1px dashed #000; 
-                padding: 6px 8px; 
+                padding: 4px 6px; 
                 box-sizing: border-box; 
-                font-size: 9.5pt; 
-                line-height: 1.15;
+                font-size: 8.5pt; 
+                line-height: 1.1;
                 background: #fff;
                 page-break-inside: avoid;
             }
-            .rcpt-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 3px; margin-bottom: 4px; }
-            .rcpt-title { font-weight: bold; font-size: 10pt; text-transform: uppercase; }
-            .rcpt-sub { font-size: 7.5pt; font-family: sans-serif; color: #333; }
-            .rcpt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
-            .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+            .rcpt-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 2px; margin-bottom: 2px; }
+            .rcpt-title { font-weight: bold; font-size: 9pt; text-transform: uppercase; }
+            .rcpt-sub { font-size: 7pt; font-family: sans-serif; color: #333; }
+            .rcpt-divider { border-bottom: 1px dashed #000; margin: 2px 0; }
+            .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 1px; }
             .rcpt-row-bold { display: flex; justify-content: space-between; font-weight: bold; }
             .rcpt-badge { 
                 text-align: center; 
                 font-weight: bold; 
-                font-size: 9pt; 
+                font-size: 8pt; 
                 border: 1px solid #000; 
-                padding: 2px; 
-                margin-top: 4px; 
+                padding: 1px; 
+                margin-top: 2px; 
                 text-transform: uppercase;
             }
-            .rcpt-footer { text-align: center; font-size: 7pt; margin-top: 4px; font-family: sans-serif; }
+            .rcpt-footer { text-align: center; font-size: 6.5pt; margin-top: 2px; font-family: sans-serif; }
         }
     </style>
 </head>
