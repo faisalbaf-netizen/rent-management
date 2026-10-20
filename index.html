@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZAHIDA KANON RENT MANAGEMENT</title>
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -35,6 +37,8 @@
         .btn { background: #198754; color: white; padding: 14px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 20px; }
         .btn-backup { background: #0d6efd; margin-top: 10px; }
         .btn-print { background: #4b4b4b; margin-top: 10px; }
+        .btn-receipt { background: #6f42c1; margin-top: 10px; }
+        
         .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
         .dash-card { background: #f8f9fa; padding: 15px; border-left: 5px solid #34495e; border-radius: 4px; }
         
@@ -47,30 +51,55 @@
         
         #printSection { display: none; }
 
-        /* --- UPDATED PRINT STYLES FOR A4 COMPRESSION --- */
+        /* --- PRINT STYLES FOR FINANCIAL STATEMENT & TENANT RECEIPTS --- */
         @media print {
-            @page { size: A4; margin: 10mm; } 
-            body { background: #fff; margin: 0; padding: 0; font-family: 'Times New Roman', Times, serif; }
+            @page { size: A4; margin: 8mm; } 
+            body { background: #fff; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
             .wrapper { display: none !important; } 
             #printSection { display: block !important; width: 100%; }
             
-            .print-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; }
+            /* General Statement Print */
+            .print-header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 10px; padding-bottom: 5px; font-family: 'Times New Roman', serif; }
             .print-header h1 { margin: 0; font-size: 20px; text-transform: uppercase; }
             .print-header p { margin: 3px 0 0; font-size: 12px; }
-            
-            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 11px; font-family: 'Times New Roman', serif; }
             .print-table th, .print-table td { border: 1px solid #000; padding: 4px; text-align: center; } 
             .print-table th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            
-            .print-grid { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
+            .print-grid { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 12px; font-family: 'Times New Roman', serif; }
             .print-box { border: 1px solid #000; padding: 8px; width: 48%; }
             .print-box h3 { margin-top: 0; font-size: 13px; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 5px; }
-            
             .print-row { display: flex; justify-content: space-between; margin-bottom: 2px; } 
             .print-total { font-weight: bold; border-top: 1px dashed #000; padding-top: 3px; margin-top: 3px; }
-            
-            .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; }
+            .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; font-family: 'Times New Roman', serif; }
             .print-sig-line { border-top: 1px solid #000; width: 220px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 12px; }
+
+            /* TELLER / CUT-OUT RECEIPT GRID STYLES */
+            .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; width: 100%; }
+            .receipt-card { 
+                border: 1px dashed #000; 
+                padding: 6px 8px; 
+                box-sizing: border-box; 
+                font-size: 9.5pt; 
+                line-height: 1.15;
+                background: #fff;
+                page-break-inside: avoid;
+            }
+            .rcpt-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 3px; margin-bottom: 4px; }
+            .rcpt-title { font-weight: bold; font-size: 10pt; text-transform: uppercase; }
+            .rcpt-sub { font-size: 7.5pt; font-family: sans-serif; color: #333; }
+            .rcpt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
+            .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+            .rcpt-row-bold { display: flex; justify-content: space-between; font-weight: bold; }
+            .rcpt-badge { 
+                text-align: center; 
+                font-weight: bold; 
+                font-size: 9pt; 
+                border: 1px solid #000; 
+                padding: 2px; 
+                margin-top: 4px; 
+                text-transform: uppercase;
+            }
+            .rcpt-footer { text-align: center; font-size: 7pt; margin-top: 4px; font-family: sans-serif; }
         }
     </style>
 </head>
@@ -87,6 +116,7 @@
         <div class="tab" onclick="switchTab('commander')">Dashboard & Analytics</div>
     </div>
 
+    <!-- OPERATOR TAB -->
     <div id="operator" class="section active">
         <div class="quick-entry">
             <h3>Flat Data Entry</h3>
@@ -152,6 +182,7 @@
         <button class="btn" onclick="submitToDatabase()">Sync to Database</button>
     </div>
 
+    <!-- COMMANDER DASHBOARD TAB -->
     <div id="commander" class="section">
         <div class="dashboard-grid">
             <div class="dash-card">
@@ -197,9 +228,11 @@
             <canvas id="financeChart"></canvas>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn btn-print" style="flex: 1;" onclick="printMonthlyRecord()">🖨️ Print Monthly Record</button>
-            <button class="btn btn-backup" style="flex: 1;" onclick="downloadBackupCSV()">📥 Download Full CSV Backup</button>
+        <!-- ACTION BUTTONS -->
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-receipt" style="flex: 1; min-width: 200px;" onclick="printTenantReceipts()">🧾 Print Tenant Cut-out Receipts</button>
+            <button class="btn btn-print" style="flex: 1; min-width: 200px;" onclick="printMonthlyRecord()">🖨️ Print Monthly Record</button>
+            <button class="btn btn-backup" style="flex: 1; min-width: 200px;" onclick="downloadBackupCSV()">📥 Download Full CSV Backup</button>
         </div>
     </div>
 </div>
@@ -329,14 +362,12 @@
         db.ref('rent_records').once('value').then(snapshot => {
             globalRecords = snapshot.val() || {}; 
             
-            // Identify chronological prior month to dynamically calculate ending balances
             const months = Object.keys(globalRecords).sort();
             const prevMonthKey = months.filter(m => m < currentMonth).pop();
 
             if (globalRecords[currentMonth]) {
                 const data = globalRecords[currentMonth];
                 data.entries.forEach((entry, i) => {
-                    // DYNAMIC CARRY-FORWARD: Always derive Prev Due from prior month's actual ending balance
                     let dynamicPrevDue = 0;
                     if (prevMonthKey && globalRecords[prevMonthKey] && globalRecords[prevMonthKey].entries?.[i]) {
                         const prevEntry = globalRecords[prevMonthKey].entries[i];
@@ -438,6 +469,52 @@
         db.ref('rent_records/' + month).set(monthData)
           .then(() => { alert("Data successfully synchronised."); loadData(); })
           .catch(err => alert("Sync failed: " + err));
+    }
+
+    // --- NEW FEATURE: TELLER-STYLE CUT-OUT TENANT RECEIPTS ---
+    function printTenantReceipts() {
+        const monthStr = document.getElementById('reportMonth').value;
+        if (!monthStr) return alert("Please select a month first.");
+        
+        const dateObj = new Date(monthStr + "-01");
+        const displayMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+        const now = new Date().toLocaleDateString();
+
+        let printHTML = `<div class="receipt-grid">`;
+
+        for (let i = 0; i < 14; i++) {
+            const f = flatsData[i];
+            const isPaid = f.balance <= 0;
+            const badgeText = isPaid ? "STATUS: PAID IN FULL" : `STATUS: OUTSTANDING DUE (${f.balance} BDT)`;
+
+            printHTML += `
+                <div class="receipt-card">
+                    <div class="rcpt-header">
+                        <div class="rcpt-title">ZAHIDA KANON RESIDENTIAL</div>
+                        <div class="rcpt-sub">Official Payment Advice & Statement</div>
+                    </div>
+                    <div class="rcpt-row"><span>Flat No: <strong>Flat ${i+1}</strong></span><span>Period: <strong>${displayMonth}</strong></span></div>
+                    <div class="rcpt-row"><span>Date: ${now}</span><span>Ref: ZK-${monthStr}-${i+1}</span></div>
+                    <div class="rcpt-divider"></div>
+                    <div class="rcpt-row"><span>Previous Due:</span><span>${f.prevDue} BDT</span></div>
+                    <div class="rcpt-row"><span>Monthly Rent:</span><span>${f.rent} BDT</span></div>
+                    <div class="rcpt-row"><span>Utility Bills:</span><span>${f.bill} BDT</span></div>
+                    <div class="rcpt-row"><span>Others:</span><span>${f.others} BDT</span></div>
+                    <div class="rcpt-divider"></div>
+                    <div class="rcpt-row-bold"><span>Total Amount Due:</span><span>${f.totalDue} BDT</span></div>
+                    <div class="rcpt-row-bold" style="color:#000;"><span>Amount Paid:</span><span>${f.paid} BDT</span></div>
+                    <div class="rcpt-divider"></div>
+                    <div class="rcpt-row-bold"><span>Balance Remaining:</span><span>${f.balance} BDT</span></div>
+                    <div class="rcpt-badge">${badgeText}</div>
+                    <div class="rcpt-footer">Thank you. Computer Generated Statement.</div>
+                </div>
+            `;
+        }
+
+        printHTML += `</div>`;
+
+        document.getElementById('printSection').innerHTML = printHTML;
+        window.print();
     }
 
     function printMonthlyRecord() {
