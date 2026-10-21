@@ -73,42 +73,33 @@
             .print-signatures { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; font-family: 'Times New Roman', serif; }
             .print-sig-line { border-top: 1px solid #000; width: 220px; text-align: center; padding-top: 5px; font-weight: bold; font-size: 12px; }
 
-            /* TELLER / CUT-OUT RECEIPT GRID STYLES (STRICT SINGLE-LINE FIT) */
-            .receipt-grid { 
-                display: grid; 
-                grid-template-columns: 1fr 1fr; 
-                gap: 1.5mm 5mm; 
-                width: 100%; 
-            }
+            /* TELLER / CUT-OUT RECEIPT GRID STYLES */
+            .receipt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; width: 100%; }
             .receipt-card { 
                 border: 1px dashed #000; 
-                padding: 3px 5px; 
+                padding: 6px 8px; 
                 box-sizing: border-box; 
-                font-size: 8pt; 
+                font-size: 9.5pt; 
                 line-height: 1.15;
                 background: #fff;
                 page-break-inside: avoid;
-                break-inside: avoid;
             }
-            .rcpt-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 2px; margin-bottom: 2px; }
-            .rcpt-title { font-weight: bold; font-size: 8.5pt; text-transform: uppercase; }
-            .rcpt-sub { font-size: 6.5pt; font-family: sans-serif; color: #333; }
-            .rcpt-divider { border-bottom: 1px dashed #000; margin: 2px 0; }
-            .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 1px; white-space: nowrap; }
-            .rcpt-row span { white-space: nowrap; }
-            .rcpt-row-bold { display: flex; justify-content: space-between; font-weight: bold; white-space: nowrap; }
-            .rcpt-row-bold span { white-space: nowrap; }
+            .rcpt-header { text-align: center; border-bottom: 1px double #000; padding-bottom: 3px; margin-bottom: 4px; }
+            .rcpt-title { font-weight: bold; font-size: 10pt; text-transform: uppercase; }
+            .rcpt-sub { font-size: 7.5pt; font-family: sans-serif; color: #333; }
+            .rcpt-divider { border-bottom: 1px dashed #000; margin: 4px 0; }
+            .rcpt-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+            .rcpt-row-bold { display: flex; justify-content: space-between; font-weight: bold; }
             .rcpt-badge { 
                 text-align: center; 
                 font-weight: bold; 
-                font-size: 7.5pt; 
+                font-size: 9pt; 
                 border: 1px solid #000; 
-                padding: 1px; 
-                margin-top: 2px; 
+                padding: 2px; 
+                margin-top: 4px; 
                 text-transform: uppercase;
-                white-space: nowrap;
             }
-            .rcpt-footer { text-align: center; font-size: 6pt; margin-top: 2px; font-family: sans-serif; }
+            .rcpt-footer { text-align: center; font-size: 7pt; margin-top: 4px; font-family: sans-serif; }
         }
     </style>
 </head>
@@ -481,7 +472,7 @@
     }
 
     // --- NEW FEATURE: TELLER-STYLE CUT-OUT TENANT RECEIPTS ---
-        function printTenantReceipts() {
+    function printTenantReceipts() {
         const monthStr = document.getElementById('reportMonth').value;
         if (!monthStr) return alert("Please select a month first.");
         
@@ -500,8 +491,7 @@
                 <div class="receipt-card">
                     <div class="rcpt-header">
                         <div class="rcpt-title">ZAHIDA KANON RESIDENTIAL</div>
-                        <div class="rcpt-sub">16/2, Jahanabad, Mirpur-1, Dhaka-1216</div>
-                        <div class="rcpt-sub" style="font-weight:bold;">Official Payment Advice & Statement</div>
+                        <div class="rcpt-sub">16/2, Jahanabad, Mirpur-1, Dhaka-1216.</div>
                     </div>
                     <div class="rcpt-row"><span>Flat No: <strong>Flat ${i+1}</strong></span><span>Period: <strong>${displayMonth}</strong></span></div>
                     <div class="rcpt-row"><span>Date: ${now}</span><span>Ref: ZK-${monthStr}-${i+1}</span></div>
@@ -512,11 +502,11 @@
                     <div class="rcpt-row"><span>Others:</span><span>${f.others} BDT</span></div>
                     <div class="rcpt-divider"></div>
                     <div class="rcpt-row-bold"><span>Total Amount Due:</span><span>${f.totalDue} BDT</span></div>
-                    <div class="rcpt-row-bold"><span>Amount Paid:</span><span>${f.paid} BDT</span></div>
+                    <div class="rcpt-row-bold" style="color:#000;"><span>Amount Paid:</span><span>${f.paid} BDT</span></div>
                     <div class="rcpt-divider"></div>
                     <div class="rcpt-row-bold"><span>Balance Remaining:</span><span>${f.balance} BDT</span></div>
                     <div class="rcpt-badge">${badgeText}</div>
-                    <div class="rcpt-footer">Any Query Contact: +8801848416341</div>
+                    <div class="rcpt-footer">Any Query Call: +8801848416341</div>
                 </div>
             `;
         }
